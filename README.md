@@ -30,13 +30,21 @@ npm test
 npm run build
 ```
 
+## Backend
+
+Supabase project `ona` (London, eu-west-2), ref `sezjhdfmgjndnbsjtsjp`. The app's defaults point at it; the URL and publishable key are safe in the browser because access is enforced by row-level security and database functions.
+
+- Migrations: `supabase/migrations/` (applied in order).
+- Account creation: `supabase/functions/admin-users` (deployed). New accounts get a temporary password shown once and must change it at first sign-in. Riders without e-mail sign in with their phone number.
+- Access tests: `supabase/tests/0001_access_test.sql` runs every privacy rule as each role and always rolls back. Run it on the live project from the SQL editor, or locally on plain Postgres after `supabase/tests/local_stub.sql`. It ends with `ALL ACCESS TESTS PASSED`.
+
 ## Build phases
 
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 0 | Foundation: rebrand, five roles, routing, every screen listed with its functions | Done |
-| 1 | Database: accounts and roles, businesses, Operations, riders and vehicles, row-level security, transitions table, admin-users function, SQL tests for every privacy rule | Next (needs the Supabase project) |
-| 2 | Owner: stock ledger, new and bulk orders, customer linkage; customer sign-up, orders, addresses | |
+| 1 | Database: accounts and roles, businesses, Operations, riders and vehicles, settings, audit, notifications, row-level security, admin-users function, access tests. Screens: Businesses, Staff, Riders & vehicles, phone sign-in for riders | Done |
+| 2 | Orders and the transitions table; owner stock ledger, new and bulk orders, customer linkage; customer orders and addresses | Next |
 | 3 | Payments: dispatch requests for one or many orders, receipt upload, super admin confirmation, fees, slots, credits, waiting charges | |
 | 4 | Dispatch and trips: route suggestions, rider app, arrival and waiting, pickup/handover/delivery codes, photos, live location, traffic notices, rider changes | |
 | 5 | Disputes, claims, complaints, dashboards, issues and prompts | |

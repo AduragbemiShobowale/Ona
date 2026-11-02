@@ -95,7 +95,7 @@ export function Loading({ error }) {
   if (error) return <div className="notice bad">{error}</div>
   return (
     <div className="empty v-inline" role="status">
-      <span className="v-mini"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 9l8 15 8-15" /></svg></span>
+      <span className="v-mini"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="48" r="32" fill="none" stroke="currentColor" strokeWidth="14" /><path d="M60 88c-7 0-13 6-13 13 0 9 13 19 13 19s13-10 13-19c0-7-6-13-13-13z" fill="#f2b705" /></svg></span>
       <span>Loading…</span>
     </div>
   )

@@ -2,8 +2,9 @@ import { createClient } from '@supabase/supabase-js'
 
 // Publishable values: safe to ship to the browser. Access is enforced by
 // row-level security and the database functions, not by hiding these.
-const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Defaults point at the Ọ̀nà project; override with .env.local for another project.
+const url = import.meta.env.VITE_SUPABASE_URL || 'https://sezjhdfmgjndnbsjtsjp.supabase.co'
+const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_mKEzUbmXH4MiDdqfiT4C-Q_4dUMFbTE'
 
 export const configured = Boolean(url && key)
 

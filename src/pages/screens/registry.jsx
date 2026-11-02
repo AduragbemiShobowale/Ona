@@ -1,19 +1,23 @@
+import Businesses from '../admin/Businesses'
+import Staff from '../admin/Staff'
+import Fleet from '../ops/Fleet'
+
 // Every screen in Ọ̀nà, by role, with the functions it must provide (spec v5).
 // Pages marked phase > 0 are placeholders until that phase is built.
 export const SCREENS = {
   super_admin: [
     { path: '/', label: 'Overview', end: true, phase: 5, does: ['Businesses, customers, riders available, deliveries, success rate', 'Revenue: delivery fees and waiting charges', 'Issues feed with Prompt business', 'Receipts waiting, against the 15-minute target'] },
     { path: '/payments', label: 'Payments', phase: 3, does: ['Receipts to check, with wait time', 'Confirm (releases orders to dispatch) or reject with a reason', 'Third rejection closes the request', 'Credits and waiting charges'] },
-    { path: '/businesses', label: 'Businesses', phase: 1, does: ['Add a business and e-mail its owner a set-password link', 'Deliveries, fees paid, customers, complaints, packing issues', 'Deactivate a business'] },
+    { path: '/businesses', label: 'Businesses', phase: 1, component: Businesses, does: ['Add a business and e-mail its owner a set-password link', 'Deliveries, fees paid, customers, complaints, packing issues', 'Deactivate a business'] },
     { path: '/fees', label: 'Fees & slots', phase: 3, does: ['Fee table by vehicle and distance band', 'Waiting charge ₦200 per 5 min after 10 free', 'Delivery slots, capacity 15 per zone, 1-hour payment cut-off', 'Claim limit ₦100,000; 48 h / 24 h deadlines'] },
-    { path: '/staff', label: 'Staff', phase: 1, does: ['Create and deactivate Operations accounts'] },
-    { path: '/riders', label: 'Riders (read-only)', phase: 4, does: ['Rider history, availability, documents and pay'] },
+    { path: '/staff', label: 'Staff', phase: 1, component: Staff, does: ['Create and deactivate Operations accounts'] },
+    { path: '/riders', label: 'Riders & vehicles', phase: 1, component: () => <Fleet readOnly />, does: ['Rider history, availability, documents and pay'] },
   ],
   operations: [
     { path: '/', label: 'Dispatch', end: true, phase: 4, does: ['Queue of paid orders from every business', 'Suggested combined routes: accept, edit or keep separate', 'Assign riders whose vehicle fits and papers are valid', 'Live map'] },
     { path: '/trips', label: 'Live trips', phase: 4, does: ['Arrival and waiting timers, ₦200 charges', 'Failed pickups and reassignment', 'Traffic alerts, stale-trip alerts', 'Swap rider mid-trip with a handover code'] },
     { path: '/disputes', label: 'Disputes & claims', phase: 5, does: ['Override a locked delivery code after phoning the customer (reason, audit log)', 'Claims: compare pickup and door photos', 'Rider-caused: refund goods value up to ₦100,000; store-caused: send to business', 'Delivery complaints (late, rider conduct)'] },
-    { path: '/fleet', label: 'Riders & vehicles', phase: 1, does: ['Create riders (temporary password) and vehicles', 'Attach rider to vehicle; availability, licence expiry, pause', 'Rider pay (not shown to riders)', 'Create dispatch staff accounts'] },
+    { path: '/fleet', label: 'Riders & vehicles', phase: 1, component: Fleet, does: ['Create riders (temporary password) and vehicles', 'Attach rider to vehicle; availability, licence expiry, pause', 'Rider pay (not shown to riders)', 'Create dispatch staff accounts'] },
   ],
   owner: [
     { path: '/', label: 'Orders', end: true, phase: 3, does: ['Orders board; pack with a checklist', 'Tick several packed orders and request dispatch', 'One transfer and one receipt for several orders', 'At pickup: rider name, photo and plate, pickup code, “Need 10 more minutes”'] },

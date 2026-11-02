@@ -175,10 +175,10 @@ tr.selected td { background: var(--accent-soft); }
 
 /* auth pages */
 .auth { min-height: 100%; display: grid; grid-template-columns: 1fr 1fr; }
-.auth-art { background: var(--brand); color: #e9f1ef; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.auth-art { background: var(--brand); color: #e8eafb; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
 .auth-art h1 { color: #fff; font-size: 30px; max-width: 440px; }
-.auth-art .brand-mark { background: #1d5a5b; }
-.auth-art ul { padding-left: 18px; display: grid; gap: 8px; color: #c9dad6; }
+.auth-art .brand-mark { background: #1b2366; }
+.auth-art ul { padding-left: 18px; display: grid; gap: 8px; color: #c3c8ee; }
 .auth-form { display: grid; place-items: center; padding: 32px 16px; }
 .auth-card { width: min(440px, 100%); display: grid; gap: 16px; }
 .auth-card.wide { width: min(720px, 100%); }
@@ -220,7 +220,7 @@ tr.selected td { background: var(--accent-soft); }
 }
 
 /* ---------------------------------------------------------- 3D sign-in scene */
-.auth-art { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 20% 10%, #1b5f60 0%, #0f3d3e 45%, #0a2a2b 100%); }
+.auth-art { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 20% 10%, #2f3a94 0%, #232c7a 45%, #141a44 100%); }
 .auth-art > * { position: relative; z-index: 1; }
 .auth-art { justify-content: flex-start; gap: 28px; }
 .auth-art > small { margin-top: auto; }
@@ -258,9 +258,9 @@ tr.selected td { background: var(--accent-soft); }
 .parcel .f.right { transform: rotateY(90deg) translateZ(calc(var(--s) / 2)); background: var(--c3); }
 .parcel .f.left { transform: rotateY(-90deg) translateZ(calc(var(--s) / 2)); background: var(--c3); }
 .parcel .f.top { transform: rotateX(90deg) translateZ(calc(var(--s) / 2)); background:
-  linear-gradient(90deg, transparent 42%, rgba(15,61,62,.35) 42% 58%, transparent 58%), var(--c1); }
+  linear-gradient(90deg, transparent 42%, rgba(20,26,68,.35) 42% 58%, transparent 58%), var(--c1); }
 .parcel .f.bottom { transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); background: rgba(0,0,0,.35); }
-.parcel .f.front::after { content: ''; position: absolute; left: 42%; right: 42%; top: 0; bottom: 0; background: rgba(15,61,62,.3); }
+.parcel .f.front::after { content: ''; position: absolute; left: 42%; right: 42%; top: 0; bottom: 0; background: rgba(20,26,68,.3); }
 .tone-gold { --c1: #f6cf6a; --c2: #d9a93a; --c3: #c29028; }
 .tone-mint { --c1: #8fe3c0; --c2: #5cc39a; --c3: #43a882; }
 .tone-coral { --c1: #ffab91; --c2: #f0836a; --c3: #d96a52; }
@@ -271,7 +271,7 @@ tr.selected td { background: var(--accent-soft); }
 
 .auth-mini { display: none; }
 .scene.compact { position: relative; height: 210px; border-radius: 18px; overflow: hidden;
-  background: radial-gradient(120% 90% at 20% 10%, #1b5f60 0%, #0f3d3e 50%, #0a2a2b 100%); }
+  background: radial-gradient(120% 90% at 20% 10%, #2f3a94 0%, #232c7a 50%, #141a44 100%); }
 .scene.compact .world { transform: rotateX(58deg) rotateZ(-38deg) scale3d(.55, .55, .55); top: 62%; }
 
 @keyframes sway { 0%, 100% { rotate: 0deg; } 50% { rotate: 6deg; } }
@@ -340,5 +340,7 @@ a:hover > .kpi { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(16,24,2
 .v-mini { position: relative; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent); }
 .v-mini::after { content: ''; position: absolute; inset: 0; border-radius: 8px; border: 2px solid var(--accent); animation: v-ring 1.6s cubic-bezier(.2,.6,.3,1) infinite; }
 .v-mini svg { width: 18px; height: 18px; overflow: visible; }
-.v-mini path { fill: none; stroke: #f2c14e; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: v-draw 1.6s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .v-mini::after { animation: none; } .v-mini path { animation: none; stroke-dashoffset: 0; } }
+.v-mini circle { stroke: #fff; }
+@media (prefers-reduced-motion: reduce) { .v-mini::after { animation: none; } }
+
+.warn-text { color: var(--warn); font-weight: 600; }

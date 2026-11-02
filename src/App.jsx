@@ -40,7 +40,7 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        {(SCREENS[role] || []).map((s) => <Route key={s.path} path={s.path} element={<Screen screen={s} />} />)}
+        {(SCREENS[role] || []).map((s) => <Route key={s.path} path={s.path} element={s.component ? <s.component /> : <Screen screen={s} />} />)}
         <Route path="/account" element={<SetPassword />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

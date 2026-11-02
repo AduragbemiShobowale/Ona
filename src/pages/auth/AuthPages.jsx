@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { BrandMark } from '../../components/Layout'
 import AuthScene from '../../components/AuthScene'
 import { markActive, takeSignOutReason } from '../../components/IdleSignOut'
+import { loginAddress } from '../../lib/login'
 
 export function AuthFrame({ children, wide }) {
   return (
@@ -21,7 +22,7 @@ export function AuthFrame({ children, wide }) {
             <li>Give your delivery code only when the parcel is in your hand.</li>
           </ul>
         </div>
-        <small style={{ color: '#9fbab4' }}>Last-mile delivery for Lagos businesses</small>
+        <small style={{ color: '#c3c8ee' }}>Last-mile delivery for Lagos businesses</small>
       </div>
       <div className="auth-form">
         <div className={`auth-card ${wide ? 'wide' : ''}`}>
@@ -43,9 +44,9 @@ export function Login() {
   const submit = async (e) => {
     e.preventDefault()
     setBusy(true); setErr(null)
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+    const { error } = await supabase.auth.signInWithPassword({ email: loginAddress(email), password })
     setBusy(false)
-    if (error) return setErr(error.message === 'Invalid login credentials' ? 'Wrong e-mail or password.' : error.message)
+    if (error) return setErr(error.message === 'Invalid login credentials' ? 'Wrong e-mail, phone number or password.' : error.message)
     markActive()
     rpc('touch_login').catch(() => {})
   }
@@ -53,18 +54,18 @@ export function Login() {
     <AuthFrame>
       <div>
         <h1>Sign in</h1>
-        <p className="muted">Customers and staff use the same sign-in.</p>
+        <p className="muted">Everyone uses the same sign-in. Riders can use their phone number.</p>
       </div>
       {notice && <div className="notice info">{notice}</div>}
       <form className="stack" onSubmit={submit}>
-        <label className="field">E-mail<input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+        <label className="field">E-mail or phone number<input type="text" inputMode="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
         <label className="field">Password<input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         {err && <div className="notice bad">{err}</div>}
         <button className="btn primary lg" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
       </form>
       <div className="row between">
         <Link to="/forgot">Forgot password?</Link>
-        <span>New business? <Link to="/register">Register</Link></span>
+        <span>New here? <Link to="/register">Create a customer account</Link></span>
       </div>
     </AuthFrame>
   )
