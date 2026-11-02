@@ -32,7 +32,7 @@ npm run build
 
 ## Live
 
-https://ona-one.vercel.app (Vercel project `ona`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
+https://onairin.vercel.app (Vercel project `ona`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
 
 ## Backend
 
