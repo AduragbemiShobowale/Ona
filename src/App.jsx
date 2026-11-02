@@ -10,7 +10,7 @@ import Screen from './pages/screens/Screen'
 // Five roles (spec v5): super_admin, operations, owner, rider, customer.
 // Only customers sign themselves up; every other account is created for them.
 export default function App() {
-  const { session, account, profile, role, loading, recovery, signOut } = useAuth()
+  const { session, account, profile, role, loading, recovery, signOut, refresh } = useAuth()
 
   if (!configured) {
     return <AuthFrame><h1>Not connected yet</h1><p>Set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in <code>.env.local</code> (see <code>.env.example</code>).</p></AuthFrame>
@@ -29,7 +29,7 @@ export default function App() {
   }
   if (recovery) return <SetPassword />
   if (account?.error || !profile) {
-    return <AuthFrame><h1>Could not load your account</h1><p>{account?.error || 'No profile found.'}</p><button className="btn" onClick={signOut}>Sign out</button></AuthFrame>
+    return <AuthFrame><h1>Could not load your account</h1><p>{account?.error || 'No profile found.'}</p><div className="row"><button className="btn primary" onClick={refresh}>Try again</button><button className="btn" onClick={signOut}>Sign out</button></div></AuthFrame>
   }
   if (profile.status !== 'active') {
     return <AuthFrame><h1>Account deactivated</h1><p>Contact Ọ̀nà support.</p><button className="btn" onClick={signOut}>Sign out</button></AuthFrame>

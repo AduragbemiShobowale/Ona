@@ -6,10 +6,13 @@ import { AuthProvider } from './context/AuthContext'
 import { LiveProvider } from './components/Live'
 import App from './App'
 import IdleSignOut from './components/IdleSignOut'
+import RootErrorBoundary from './components/RootErrorBoundary'
 import './index.css'
 
+window.__onaStarted = true
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <RootErrorBoundary>
     <BrowserRouter>
       <AuthProvider>
         <LiveProvider>
@@ -19,5 +22,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </LiveProvider>
       </AuthProvider>
     </BrowserRouter>
+    </RootErrorBoundary>
   </React.StrictMode>,
 )

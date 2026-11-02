@@ -38,8 +38,8 @@
       .v-mark { position: relative; width: 150px; height: 150px; }
       .v-mark svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
       .v-ring { fill: none; stroke: #fff; stroke-width: 13; stroke-linecap: round; stroke-dasharray: 202; stroke-dashoffset: 202;
-        transform-origin: 60px 48px; transform: rotate(-90deg); animation: v-draw 2.8s cubic-bezier(.65,0,.35,1) infinite; filter: drop-shadow(0 0 10px rgba(255,255,255,.25)); }
-      .v-pin { fill: #f2b705; transform-origin: 60px 120px; animation: v-drop 2.8s cubic-bezier(.3,1.4,.5,1) infinite; filter: drop-shadow(0 6px 10px rgba(242,183,5,.45)); }
+        transform-origin: 60px 48px; transform: rotate(-90deg); animation: v-draw 2.8s cubic-bezier(.65,0,.35,1) infinite; }
+      .v-pin { fill: #f2b705; transform-origin: 60px 120px; animation: v-drop 2.8s cubic-bezier(.3,1.4,.5,1) infinite; }
       .v-pin-dot { fill: #121741; animation: v-drop 2.8s cubic-bezier(.3,1.4,.5,1) infinite; transform-origin: 60px 120px; }
       .v-ripple { fill: none; stroke: #f2b705; stroke-width: 2; transform-origin: 60px 112px; opacity: 0; animation: v-ripple 2.8s ease-out infinite; }
       .v-ripple.r2 { animation-delay: .25s; }
@@ -78,6 +78,21 @@
         <div class="v-road" aria-hidden="true"><i></i></div>
       </div>
     </div>
+    <script>
+      // If the app script fails to load or start, say so instead of leaving the splash or a blank page.
+      (function () {
+        var shown = false
+        function fail(msg) {
+          if (shown || window.__onaStarted) return
+          shown = true
+          var r = document.getElementById('root')
+          r.innerHTML = '<div class="v-splash"><div class="v-word">ọ̀nà</div><div class="v-tag" style="max-width:320px;text-align:center">Ọ̀nà could not start in this browser.<br><br><small style="opacity:.7;font-family:monospace">' +
+            String(msg || 'unknown error').replace(/[<>&]/g, '') + '</small><br><br><a href="/" style="color:#f2b705">Reload</a></div></div>'
+        }
+        window.addEventListener('error', function (e) { fail(e.message || (e.target && e.target.src ? 'Could not load ' + e.target.src : '')) }, true)
+        setTimeout(function () { fail('The app took too long to load. Check your connection.') }, 20000)
+      })()
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

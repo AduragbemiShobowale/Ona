@@ -31,6 +31,8 @@ begin
   if not exists (select 1 from riders where profile_id = rd and zone = 'Lekki') then raise exception 'FAIL: rider row missing'; end if;
   if not (select must_change_password from profiles where id = rd) then raise exception 'FAIL: must_change_password not set'; end if;
 
+  insert into notifications (user_id, event, title) values (cu, 't', 'for customer'), (oa, 't', 'for owner');
+
   -- ---------- customer
   perform set_config('request.jwt.claims', json_build_object('sub', cu, 'role','authenticated')::text, true);
   set local role authenticated;
@@ -38,10 +40,13 @@ begin
   select count(*) into n from businesses; if n <> 0 then raise exception 'FAIL: customer sees businesses'; end if;
   select count(*) into n from riders; if n <> 0 then raise exception 'FAIL: customer sees riders'; end if;
   if platform_counts() is not null then raise exception 'FAIL: customer got platform counts'; end if;
+  perform mark_notifications_read(null);
+  select count(*) into n from notifications where read_at is null; if n <> 0 then raise exception 'FAIL: customer could not mark own notifications read'; end if;
   j := my_account(); if (j->'profile'->>'role') <> 'customer' or not (j->>'email_confirmed')::boolean then raise exception 'FAIL: my_account for customer'; end if;
   reset role;
 
   -- ---------- owner A
+  if (select read_at from notifications where user_id = oa) is not null then raise exception 'FAIL: marking read touched another user'; end if;
   perform set_config('request.jwt.claims', json_build_object('sub', oa, 'role','authenticated')::text, true);
   set local role authenticated;
   select count(*) into n from businesses; if n <> 1 then raise exception 'FAIL: owner sees % businesses', n; end if;
