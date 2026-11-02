@@ -2,6 +2,9 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { STATUS, RULE_LABEL, dateTime } from '../lib/format'
 import toast from 'react-hot-toast'
 import { useLive } from './Live'
+import { Link } from 'react-router-dom'
+import Icon from './icons'
+import { uploadFile, signedUrl } from '../lib/supabase'
 
 // Loads data and reloads it when the caller's deps change or a live
 // notification arrives for this user.
@@ -41,14 +44,78 @@ export function StatusBadge({ status, customer }) {
 
 export const Badge = ({ tone = 'muted', children }) => <span className={`badge t-${tone}`}>{children}</span>
 
-export function Kpi({ label, value, alert, to }) {
+export function Kpi({ label, value, note, icon = 'overview', tone, to }) {
   const body = (
-    <div className={`kpi ${alert ? 'alert' : ''}`}>
+    <>
+      <span className="ic"><Icon name={icon} size={19} /></span>
       <div className="v">{value ?? '…'}</div>
       <div className="l">{label}</div>
+      {note && <div className="n">{note}</div>}
+    </>
+  )
+  const cls = `kpi ${tone || ''}`
+  return to ? <Link to={to} className={cls}>{body}</Link> : <div className={cls}>{body}</div>
+}
+
+// Bars for up to two series by day. Values are always in the tooltip and the totals line (the yellow is low contrast).
+export function BarChart({ data, series, format = (v) => v, height = 150 }) {
+  if (!data?.length) return <Empty>No data yet.</Empty>
+  const max = Math.max(1, ...data.flatMap((d) => series.map((s) => Number(d[s.key]) || 0)))
+  const day = (d) => new Date(d.day).toLocaleDateString('en-GB', { day: 'numeric' })
+  return (
+    <div className="chart">
+      {series.length > 1 && <div className="legend">{series.map((s, i) => <span key={s.key} className={i ? 's2' : ''}>{s.label}</span>)}</div>}
+      <div className="chart-bars" style={{ height }} role="img" aria-label={series.map((s) => s.label).join(' and ') + ' by day'}>
+        {data.map((d) => (
+          <div className="chart-col" key={d.day}>
+            {series.map((s, i) => <i key={s.key} className={i ? 's2' : ''} style={{ height: `${((Number(d[s.key]) || 0) / max) * 100}%` }} />)}
+            <span className="tip">{new Date(d.day).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}: {series.map((s) => `${s.label} ${format(d[s.key] || 0)}`).join(' · ')}</span>
+          </div>
+        ))}
+      </div>
+      <div className="chart-axis">{data.map((d, i) => <span key={d.day}>{i % 2 === 0 ? day(d) : ''}</span>)}</div>
     </div>
   )
-  return to ? <a href={to} style={{ color: 'inherit', textDecoration: 'none' }}>{body}</a> : body
+}
+
+// Camera-friendly photo picker: uploads straight away and returns the storage path.
+export function PhotoInput({ label = 'Take a photo', bucket = 'photos', owner, folder, value, onChange }) {
+  const [busy, setBusy] = useState(false)
+  const pick = async (e) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    setBusy(true)
+    try { onChange(await uploadFile(bucket, f, owner, folder)) } catch (err) { toast.error(err.message) } finally { setBusy(false) }
+  }
+  return (
+    <label className={`photo-in ${value ? 'done' : ''}`}>
+      <Icon name={value ? 'check' : 'camera'} size={26} />
+      <strong>{busy ? 'Uploading…' : value ? 'Photo saved' : label}</strong>
+      <input type="file" accept="image/*" capture="environment" hidden onChange={pick} />
+    </label>
+  )
+}
+
+// Opens a private file (receipt or photo) through a short-lived signed link.
+export function FileLink({ bucket, path, children = 'View' }) {
+  if (!path) return <span className="muted">—</span>
+  const open = async (e) => {
+    e.preventDefault()
+    try { window.open(await signedUrl(bucket, path), '_blank', 'noopener') } catch (err) { toast.error(err.message) }
+  }
+  return <a href="#file" onClick={open}>{children}</a>
+}
+
+export function Seg({ value, onChange, options }) {
+  return (
+    <div className="seg" role="tablist">
+      {options.map((o) => (
+        <button key={o.value} role="tab" aria-selected={value === o.value} className={value === o.value ? 'on' : ''} onClick={() => onChange(o.value)}>
+          {o.label}{o.count > 0 && <span className="count">{o.count}</span>}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 export function Card({ title, action, children, pad = true, className = '' }) {
@@ -199,7 +266,7 @@ export function Timeline({ events, customer }) {
               <strong>{customer ? STATUS[e.to_status]?.customer : STATUS[e.to_status]?.label}</strong>
               <span className="muted small">{dateTime(e.at)}</span>
             </div>
-            {e.note && !(customer && e.note.startsWith('OVERRIDE')) && <div className="muted small">{e.note}</div>}
+            {e.reason && !customer && <div className="muted small">{e.reason}</div>}
           </div>
         </div>
       ))}

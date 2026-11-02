@@ -1,5 +1,5 @@
 import { Component, useState, useEffect, useRef } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate, matchPath } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLive } from './Live'
 import { ROLE_LABEL, ago } from '../lib/format'
@@ -9,7 +9,7 @@ import { SCREENS } from '../pages/screens/registry'
 
 // Menus come from the screen registry so the routes and the menu never disagree.
 export const MENUS = Object.fromEntries(
-  Object.entries(SCREENS).map(([role, list]) => [role, list.filter((x) => !x.hidden).map((x) => ({ to: x.path, label: x.label, end: x.end, icon: x.icon, count: x.count }))]),
+  Object.entries(SCREENS).map(([role, list]) => [role, list.filter((x) => !x.hidden)]),
 )
 
 export const BrandMark = ({ size = 22 }) => (
@@ -18,9 +18,11 @@ export const BrandMark = ({ size = 22 }) => (
   </span>
 )
 
-function usePopover() {
+export function Bell() {
+  const { items, unread, markRead, markAll } = useLive()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const nav = useNavigate()
   const loc = useLocation()
   useEffect(() => setOpen(false), [loc.pathname])
   useEffect(() => {
@@ -30,29 +32,22 @@ function usePopover() {
     document.addEventListener('mousedown', off); document.addEventListener('keydown', esc)
     return () => { document.removeEventListener('mousedown', off); document.removeEventListener('keydown', esc) }
   }, [open])
-  return { open, setOpen, ref }
-}
-
-export function Bell() {
-  const { items, unread, markRead, markAll } = useLive()
-  const pop = usePopover()
-  const nav = useNavigate()
   return (
-    <div ref={pop.ref} style={{ position: 'relative' }}>
-      <button className="icon-btn" aria-label={`Notifications, ${unread} unread`} aria-expanded={pop.open} onClick={() => pop.setOpen((o) => !o)}>
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button className="icon-btn" aria-label={`Notifications, ${unread} unread`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <Icon name="bell" />
         {unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}
       </button>
-      {pop.open && (
+      {open && (
         <div className="bell-pop">
-          <div className="row between" style={{ padding: '12px 14px', borderBottom: '1px dashed var(--line-2)' }}>
+          <div className="row between" style={{ padding: '14px 16px', borderBottom: '1px dashed var(--line-2)' }}>
             <h3>Notifications</h3>
             {unread > 0 && <button className="btn ghost sm" onClick={markAll}>Mark all read</button>}
           </div>
-          {items.length === 0 && <div className="empty">Nothing yet.</div>}
+          {items.length === 0 && <div className="empty">Nothing yet. Updates about your orders and tasks appear here.</div>}
           {items.map((n) => (
-            <div key={n.id} className={`notif ${n.read_at ? '' : 'unread'}`} onClick={() => { markRead([n.id]); if (n.link) nav(n.link); pop.setOpen(false) }}>
-              <div className="row between"><strong>{n.title}</strong><span className="muted small">{ago(n.created_at)}</span></div>
+            <div key={n.id} className={`notif ${n.read_at ? '' : 'unread'}`} onClick={() => { markRead([n.id]); if (n.link) nav(n.link); setOpen(false) }}>
+              <div className="row between nowrap"><strong>{n.title}</strong><span className="muted small nowrap">{ago(n.created_at)}</span></div>
               {n.body && <div className="muted small">{n.body}</div>}
             </div>
           ))}
@@ -67,7 +62,7 @@ function NavCount({ fn }) {
   const loc = useLocation()
   const [n, setN] = useState(0)
   useEffect(() => { fn().then(setN).catch(() => {}) }, [tick, loc.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
-  return n > 0 ? <span className="count">{n}</span> : null
+  return n > 0 ? <span className="count">{n > 99 ? '99+' : n}</span> : null
 }
 
 // Keeps a crash in one page from blanking the whole screen. Resets when the route changes.
@@ -88,48 +83,80 @@ class PageErrorBoundary extends Component {
 
 const initials = (s) => (s || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 
-export default function Layout() {
-  const { role, profile, signOut } = useAuth()
-  const menu = usePopover()
-  const [confirmOut, setConfirmOut] = useState(false)
-  const loc = useLocation()
-  const items = MENUS[role] || []
-  const link = (m, cls) => (
-    <NavLink key={m.to} to={m.to} end={m.end} className={({ isActive }) => (isActive ? 'active' : '') + (cls ? ' ' + cls : '')}>
+function NavItem({ m }) {
+  return (
+    <NavLink to={m.path} end={m.end}>
       <Icon name={m.icon} />
       <span>{m.label}</span>
       {m.count && <NavCount fn={m.count} />}
     </NavLink>
   )
+}
+
+export default function Layout() {
+  const { role, profile, signOut } = useAuth()
+  const [open, setOpen] = useState(false)
+  const [confirmOut, setConfirmOut] = useState(false)
+  const loc = useLocation()
+  useEffect(() => setOpen(false), [loc.pathname])
+  const items = MENUS[role] || []
+  const groups = []
+  items.forEach((m) => {
+    const g = m.group || 'Menu'
+    let found = groups.find((x) => x.name === g)
+    if (!found) { found = { name: g, items: [] }; groups.push(found) }
+    found.items.push(m)
+  })
+  const current = (SCREENS[role] || []).find((s) => matchPath({ path: s.path, end: true }, loc.pathname))
+  const title = loc.pathname === '/account' ? 'Account & password' : current?.label || 'Ọ̀nà'
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+
   return (
-    <div className="app" data-role={role}>
-      <header className="topbar">
-        <div className="topbar-in">
-          <NavLink to="/" className="brand" aria-label="Ọ̀nà home"><BrandMark /> ọ̀nà</NavLink>
-          <nav className="tabs" aria-label="Main">{items.map((m) => link(m))}</nav>
-          <div className="who">
-            <Bell />
-            <div ref={menu.ref} style={{ position: 'relative' }}>
-              <button className="avatar" aria-label="Your account" aria-expanded={menu.open} onClick={() => menu.setOpen((o) => !o)}>{initials(profile?.full_name || profile?.email)}</button>
-              {menu.open && (
-                <div className="menu-pop" role="menu">
-                  <div className="head">
-                    <strong>{profile?.full_name || 'Your account'}</strong>
-                    <div className="muted small">{profile?.business_name || profile?.email}</div>
-                    <span className="role">{ROLE_LABEL[role]}</span>
-                  </div>
-                  <NavLink to="/account" role="menuitem">Change password</NavLink>
-                  <button className="item" role="menuitem" onClick={() => { menu.setOpen(false); setConfirmOut(true) }}>Sign out</button>
-                </div>
-              )}
+    <div className="shell" data-role={role}>
+      <aside className={`side ${open ? 'open' : ''}`} aria-label="Main menu">
+        <NavLink to="/" className="brand" aria-label="Ọ̀nà home"><BrandMark /> ọ̀nà</NavLink>
+        <div className="role-chip"><i /><b>{ROLE_LABEL[role]}</b><span>{profile?.business_name ? 'Business' : 'Ọ̀nà'}</span></div>
+        <nav>
+          {groups.map((g) => (
+            <div className="nav-group" key={g.name}>
+              <small>{g.name}</small>
+              {g.items.map((m) => <NavItem key={m.path} m={m} />)}
+            </div>
+          ))}
+        </nav>
+        <div className="side-foot">
+          <div className="me">
+            <span className="avatar">{initials(profile?.full_name || profile?.email)}</span>
+            <div style={{ minWidth: 0 }}>
+              <b>{profile?.full_name || 'Your account'}</b>
+              <small>{profile?.business_name || profile?.email}</small>
             </div>
           </div>
+          <div className="side-actions">
+            <NavLink to="/account"><Icon name="key" size={15} /> Password</NavLink>
+            <button onClick={() => setConfirmOut(true)}><Icon name="logout" size={15} /> Sign out</button>
+          </div>
         </div>
-      </header>
-      <main className="page">
-        <PageErrorBoundary path={loc.pathname}><Outlet /></PageErrorBoundary>
-      </main>
-      <nav className="btabs" aria-label="Main">{items.map((m) => link(m))}</nav>
+      </aside>
+      {open && <div className="side-scrim" onClick={() => setOpen(false)} />}
+
+      <div className="main">
+        <header className="top">
+          <button className="icon-btn menu-btn" aria-label="Open the menu" onClick={() => setOpen(true)}><Icon name="menu" /></button>
+          <div className="crumb"><small>{ROLE_LABEL[role]}</small><b>{title}</b></div>
+          <span className="today">{today}</span>
+          <Bell />
+        </header>
+        <main className="page">
+          <PageErrorBoundary path={loc.pathname}><Outlet /></PageErrorBoundary>
+        </main>
+      </div>
+
+      <nav className="btabs" aria-label="Quick menu">
+        {items.slice(0, 4).map((m) => <NavItem key={m.path} m={m} />)}
+        <a href="#menu" onClick={(e) => { e.preventDefault(); setOpen(true) }}><Icon name="menu" /><span>More</span></a>
+      </nav>
+
       {confirmOut && (
         <Modal title="Sign out?" onClose={() => setConfirmOut(false)} footer={<>
           <button className="btn" onClick={() => setConfirmOut(false)}>Stay signed in</button>

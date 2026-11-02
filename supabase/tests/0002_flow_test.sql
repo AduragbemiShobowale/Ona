@@ -84,6 +84,7 @@ begin
   perform set_order_address(ord, '{"address":"14 Bourdillon Road, Ikoyi","zone":"Ikoyi","phone":"0803 111 2222"}');
   if (select status from orders where id = ord) <> 'received' then raise exception 'FAIL: choosing the address should move to received'; end if;
   select count(*) into n from order_charges; if n <> 0 then raise exception 'FAIL: customer sees delivery fees'; end if;
+  select count(*) into n from businesses; if n <> 1 then raise exception 'FAIL: customer should see only the business that sent the order, sees %', n; end if;
   reset role;
 
   -- ---------- owner packs both and requests dispatch with one receipt

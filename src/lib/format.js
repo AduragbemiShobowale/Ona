@@ -79,3 +79,20 @@ export const tomorrow = () => {
   d.setDate(d.getDate() + 1)
   return d.toISOString().slice(0, 10)
 }
+
+// Whole naira, as people say it: ₦12,500
+export const naira = (n) => (n == null || n === '' ? '—' : '₦' + Math.round(Number(n)).toLocaleString('en-NG'))
+
+// Delivery zones offered in forms (free text is still accepted by the database).
+export const ZONES = ['Lekki', 'Ikoyi', 'Victoria Island', 'Ajah', 'Yaba', 'Surulere', 'Ikeja', 'Maryland', 'Gbagada', 'Festac', 'Apapa', 'Ikorodu', 'Magodo', 'Ogba', 'Oshodi', 'Mainland']
+
+const t = (d) => new Date(d).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Africa/Lagos' }).replace(':00', '').replace(' ', '')
+// "Tue 4 Nov, 10am–12pm"
+export const windowLabel = (s, e) => s ? `${new Date(s).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' })}, ${t(s)}–${t(e)}` : '—'
+export const timeOnly = (d) => (d ? t(d) : '—')
+
+export const minutesSince = (d) => (d ? Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 60000)) : 0)
+export const VEHICLE = { bike: 'Bike', car: 'Car', van: 'Van', truck: 'Truck' }
+export const pct = (a, b) => (b ? Math.round((a / b) * 100) + '%' : '—')
+// date input value N days from today (Lagos)
+export const isoDay = (plus = 0) => { const d = new Date(Date.now() + plus * 86400000); return d.toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }) }

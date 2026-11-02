@@ -32,7 +32,7 @@ npm run build
 
 ## Live
 
-https://onairin.vercel.app (Vercel project `ona`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
+https://onairin.vercel.app (Vercel project `onairin`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
 
 ## Backend
 
@@ -40,7 +40,8 @@ Supabase project `ona` (London, eu-west-2), ref `sezjhdfmgjndnbsjtsjp`. The app'
 
 - Migrations: `supabase/migrations/` (applied in order).
 - Account creation: `supabase/functions/admin-users` (deployed). New accounts get a temporary password shown once and must change it at first sign-in. Riders without e-mail sign in with their phone number.
-- Access tests: `supabase/tests/0001_access_test.sql` runs every privacy rule as each role and always rolls back. Run it on the live project from the SQL editor, or locally on plain Postgres after `supabase/tests/local_stub.sql`. It ends with `ALL ACCESS TESTS PASSED`.
+- Access tests: `supabase/tests/0001_access_test.sql` runs the account and fleet privacy rules as each role; `0002_flow_test.sql` takes orders through every role (stock, send_order, customer linking, receipt rejected then confirmed, route, codes with lockout, override, claim, rider change, credit) and checks who can see what at each step. Both always roll back. Run them on the live project from the SQL editor, or locally on plain Postgres after `supabase/tests/local_stub.sql`. They end with `ALL ACCESS TESTS PASSED` and `ALL FLOW TESTS PASSED`.
+- Storage: private buckets `receipts` (per business) and `photos` (per rider). Scheduled jobs (pg_cron): unpaid dispatch requests close after 2 hours; rider location points older than 30 days are deleted.
 
 ## Build phases
 
@@ -48,8 +49,8 @@ Supabase project `ona` (London, eu-west-2), ref `sezjhdfmgjndnbsjtsjp`. The app'
 | --- | --- | --- |
 | 0 | Foundation: rebrand, five roles, routing, every screen listed with its functions | Done |
 | 1 | Database: accounts and roles, businesses, Operations, riders and vehicles, settings, audit, notifications, row-level security, admin-users function, access tests. Screens: Businesses, Staff, Riders & vehicles, phone sign-in for riders | Done |
-| 2 | Orders and the transitions table; owner stock ledger, new and bulk orders, customer linkage; customer orders and addresses | Next |
-| 3 | Payments: dispatch requests for one or many orders, receipt upload, super admin confirmation, fees, slots, credits, waiting charges | |
-| 4 | Dispatch and trips: route suggestions, rider app, arrival and waiting, pickup/handover/delivery codes, photos, live location, traffic notices, rider changes | |
-| 5 | Disputes, claims, complaints, dashboards, issues and prompts | |
-| 6 | Resend email, sample data for the three study cases with reset, CSV exports, browser tests, deploy | |
+| 2 | Orders and the transitions table; owner stock ledger, new and bulk orders, customer linkage; customer orders and addresses | Done |
+| 3 | Payments: dispatch requests for one or many orders, receipt upload, super admin confirmation, fees, slots, credits, waiting charges | Done |
+| 4 | Dispatch and trips: route suggestions, rider app, arrival and waiting, pickup/handover/delivery codes, photos, live location, traffic notices, rider changes | Done |
+| 5 | Disputes, claims, complaints, dashboards, issues and prompts; rider pay | Done |
+| 6 | E-mail sending (needs a verified domain or Gmail SMTP; notifications already flag which ones should be e-mailed), sample data for the three study cases with reset, CSV exports, browser tests against a test database | Next |

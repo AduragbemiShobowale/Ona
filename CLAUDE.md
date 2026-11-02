@@ -23,9 +23,10 @@ Fees by vehicle (bike, car, van, truck) and distance band (0–5, 5–15, 15–3
 
 ## Conventions
 
-- Screens are listed in `src/pages/screens/registry.jsx`; menus and routes are generated from it. Replace a placeholder by giving the entry its real component.
-- Plain CSS in `src/index.css`, Ọ̀nà's own "waybill and route" design: indigo surfaces with the adire stitch pattern, cool paper working surfaces, waybill cards (mono uppercase headers, dashed dividers, ticket notches), the dashed route line with a pickup dot and delivery pin, danfo-yellow accents. Indigo top bar with tabs on desktop, bottom tab bar on phones. Role colour is the band under the top bar (`[data-role]`). Do not bring back Verity's sidebar or 3D scene.
+- Screens are listed in `src/pages/screens/registry.jsx`; menus, sidebar groups (`group`), counts and routes are generated from it. Every entry has a real component.
+- Plain CSS in `src/index.css`, Ọ̀nà's own "waybill and route" design: indigo surfaces with the adire stitch pattern, cool paper working surfaces, waybill cards (mono uppercase headers, dashed dividers, ticket notches), the dashed route line with a pickup dot and delivery pin, danfo-yellow accents. Layout follows Verity's structure at the owner's request: an indigo sidebar (role chip, grouped menus with counts, user card), a light top bar with the page title and bell, and pages of KPI tiles and cards; on phones the sidebar becomes a drawer and the first screens sit in a bottom tab bar. Role colour shows on the role chip and the active menu marker (`[data-role]`). Do not bring back Verity's 3D sign-in scene or its sign-up.
 - Icons: `src/components/icons.jsx`; every screen in the registry names one.
 - Write copy the way the person using the screen talks; name things by what they recognise.
 - `supabase/functions/admin-users` creates businesses with owners, Operations staff and riders, each with a temporary password. Riders without e-mail log in as `<phone>@rider.ona.invalid`; `src/lib/login.js` builds the same address.
-- Run `supabase/tests/0001_access_test.sql` after any change to tables, policies or functions; it must end with `ALL ACCESS TESTS PASSED`.
+- Run `supabase/tests/0001_access_test.sql` and `0002_flow_test.sql` after any change to tables, policies or functions; they must end with `ALL ACCESS TESTS PASSED` and `ALL FLOW TESTS PASSED`.
+- Riders never select orders or route stops directly: everything they see comes from `rider_route()`. The super admin never selects orders: `admin_orders()` returns them without addresses or goods. Codes are shown only through `code_value()` inside `order_tracking()`, `owner_pickups()` and (handover only, per spec section 6) `rider_route()`.

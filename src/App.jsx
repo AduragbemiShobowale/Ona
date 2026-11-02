@@ -5,7 +5,6 @@ import Layout from './components/Layout'
 import { BrandSplash } from './components/ui'
 import { Login, Register, Forgot, SetPassword, VerifyEmail, AuthFrame } from './pages/auth/AuthPages'
 import { SCREENS } from './pages/screens/registry'
-import Screen from './pages/screens/Screen'
 
 // Five roles (spec v5): super_admin, operations, owner, rider, customer.
 // Only customers sign themselves up; every other account is created for them.
@@ -40,7 +39,7 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        {(SCREENS[role] || []).map((s) => <Route key={s.path} path={s.path} element={s.component ? <s.component /> : <Screen screen={s} />} />)}
+        {(SCREENS[role] || []).map((s) => <Route key={s.path} path={s.path} element={<s.component />} />)}
         <Route path="/account" element={<SetPassword />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
