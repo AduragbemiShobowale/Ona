@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#232c7a" />
+    <title>Ọ̀nà · Last-mile delivery</title>
+    <meta name="description" content="Ọ̀nà picks up from Lagos businesses and delivers to their customers, with live tracking and a pickup and delivery code at every handover." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&display=swap" />
+    <!-- Splash shown while the app loads; the app's BrandSplash uses the same classes. -->
+    <style>
+      .v-splash { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+        background: radial-gradient(120% 90% at 50% 40%, #2f3a94 0%, #232c7a 45%, #141a44 100%); color: #fff;
+        font: 600 15px/1.4 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
+      .v-tile { position: relative; width: 96px; height: 96px; border-radius: 26px; display: grid; place-items: center;
+        background: #1b2366; box-shadow: 0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12); animation: v-float 3.2s ease-in-out infinite; }
+      .v-tile::before { content: ''; position: absolute; inset: 0; border-radius: 26px; border: 2px solid rgba(242,183,5,.55); animation: v-ring 2.4s cubic-bezier(.2,.6,.3,1) infinite; }
+      .v-tile svg { width: 60px; height: 60px; }
+      .v-tile circle { fill: none; stroke: #fff; stroke-width: 14; }
+      .v-tile .pin { fill: #f2b705; }
+      .v-word { position: relative; font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
+      .v-tag { position: relative; margin-top: -12px; font-size: 13px; font-weight: 500; color: #c3c8ee; text-align: center; padding: 0 16px; }
+      .v-bar { position: relative; width: 140px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; }
+      .v-bar::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 3px; background: linear-gradient(90deg, rgba(242,183,5,0), #f2b705, rgba(242,183,5,0)); animation: v-slide 1.3s ease-in-out infinite; }
+      @keyframes v-ring { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.75); opacity: 0; } }
+      @keyframes v-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      @keyframes v-slide { from { left: -40%; } to { left: 100%; } }
+      @media (prefers-reduced-motion: reduce) { .v-splash *, .v-tile::before { animation: none !important; } }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="v-splash" role="status" aria-label="Loading Ọ̀nà">
+        <div class="v-tile"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="48" r="32" /><path class="pin" d="M60 88c-7 0-13 6-13 13 0 9 13 19 13 19s13-10 13-19c0-7-6-13-13-13z" /></svg></div>
+        <div class="v-word">ọ̀nà</div>
+        <div class="v-tag">Last-mile delivery for Lagos businesses</div>
+        <div class="v-bar"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

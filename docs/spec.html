@@ -1,0 +1,373 @@
+<title>Ọ̀nà Workflow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: build spec. Danfo header, sticky section nav, system map, account table, shop lifecycle, storefront mock, journeys, status model, swimlane grid, filterable error catalogue, data model, decisions. */
+:root{
+  --bg:#f6f5f0; --surface:#ffffff; --sunk:#eeece4; --ink:#17160f; --muted:#646152; --line:#dcd9cc;
+  --danfo:#f2b705; --danfo-ink:#17160f;
+  --cust:#2a5c9a; --own:#8a6400; --disp:#6a4c9c; --rider:#1f7a45; --sys:#5d5b50; --adm:#9a3a2a; --bad:#b3261e;
+  --cust-bg:#e2ebf6; --own-bg:#fbefd9; --disp-bg:#ece6f6; --rider-bg:#e3f2e8; --sys-bg:#ecebe5; --adm-bg:#f6e3dd; --bad-bg:#f9e1df;
+  --f-ui:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14130e; --surface:#1d1c16; --sunk:#26241d; --ink:#efece0; --muted:#a8a491; --line:#34322a;
+  --cust:#8ab4f8; --own:#f2c440; --disp:#c3a6f0; --rider:#6fcf97; --sys:#b9b6a6; --adm:#f0a08c; --bad:#f28b82;
+  --cust-bg:#1c2a3d; --own-bg:#3a2c14; --disp-bg:#2a2140; --rider-bg:#1d3326; --sys-bg:#2a2922; --adm-bg:#3a221c; --bad-bg:#3d1f1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14130e; --surface:#1d1c16; --sunk:#26241d; --ink:#efece0; --muted:#a8a491; --line:#34322a;
+  --cust:#8ab4f8; --own:#f2c440; --disp:#c3a6f0; --rider:#6fcf97; --sys:#b9b6a6; --adm:#f0a08c; --bad:#f28b82;
+  --cust-bg:#1c2a3d; --own-bg:#3a2c14; --disp-bg:#2a2140; --rider-bg:#1d3326; --sys-bg:#2a2922; --adm-bg:#3a221c; --bad-bg:#3d1f1c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--danfo);color:var(--danfo-ink);border-bottom:6px solid var(--danfo-ink);background-image:repeating-linear-gradient(90deg,transparent 0 46px,rgba(0,0,0,.07) 46px 52px)}
+header .in{max-width:1240px;margin:0 auto;padding-block:22px 18px}
+header h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.015em;text-wrap:balance}
+header p{margin:6px 0 0;max-width:74ch;font-size:15px}
+header .ver{display:inline-block;font-family:var(--f-mono);font-size:11px;background:var(--danfo-ink);color:var(--danfo);padding:2px 8px;border-radius:4px;margin-top:10px}
+nav.sec{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.sec .in{max-width:1240px;margin:0 auto;display:flex;gap:2px;overflow-x:auto}
+nav.sec a{color:var(--muted);text-decoration:none;font-weight:600;padding:11px 11px;white-space:nowrap;font-size:13px}
+nav.sec a:hover{color:var(--ink)}
+nav.sec a .n{font-family:var(--f-mono);font-size:11px;margin-right:5px;opacity:.6}
+main{max-width:1240px;margin:0 auto;padding-block:10px 70px}
+section{scroll-margin-top:60px}
+h2{font-size:21px;margin:38px 0 6px;letter-spacing:-.01em;text-wrap:balance}
+h2 .n{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-right:8px;font-weight:500}
+h3{font-size:16px;margin:0 0 6px}
+.lede{color:var(--muted);max-width:78ch;margin:0 0 14px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.dia{overflow-x:auto}
+.dia svg{display:block;width:100%;min-width:820px;height:auto}
+svg text{font-family:var(--f-ui);fill:var(--ink)}
+svg .m{fill:var(--muted);font-size:11px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+.seq{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.seq li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.seq li::before{content:counter(s);font-family:var(--f-mono);font-weight:500;background:var(--ink);color:var(--bg);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.who{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;margin-right:4px;white-space:nowrap}
+.w-cust{background:var(--cust-bg);color:var(--cust)} .w-own{background:var(--own-bg);color:var(--own)} .w-disp{background:var(--disp-bg);color:var(--disp)} .w-rider{background:var(--rider-bg);color:var(--rider)} .w-sys{background:var(--sys-bg);color:var(--sys)} .w-adm{background:var(--adm-bg);color:var(--adm)} .w-bad{background:var(--bad-bg);color:var(--bad)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--sunk);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.mono{font-family:var(--f-mono);font-size:12px}
+.flag{background:var(--own-bg);border-left:3px solid var(--own);padding:10px 12px;border-radius:4px;max-width:96ch;margin:10px 0}
+.flag.red{background:var(--bad-bg);border-left-color:var(--bad)}
+.y{color:var(--rider);font-weight:700} .x{color:var(--muted)}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:4px;background:var(--sunk);margin:2px 2px 2px 0;white-space:nowrap}
+.chip.main{background:var(--ink);color:var(--bg)} .chip.off{background:var(--bad-bg);color:var(--bad)} .chip.new{outline:1px dashed var(--own)}
+.arrow{color:var(--muted);margin:0 2px}
+/* storefront mock */
+.store{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.store .bar{background:var(--sunk);padding:7px 12px;font-family:var(--f-mono);font-size:11px;color:var(--muted);word-break:break-all}
+.store .sh{padding:14px;border-bottom:1px solid var(--line)}
+.store .sh b{font-size:18px}
+.store .sh .meta{color:var(--muted);font-size:12px}
+.store .prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;padding:14px}
+.prod{border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px}
+.prod .ph{aspect-ratio:1;max-width:100%;background:repeating-linear-gradient(45deg,var(--sunk) 0 8px,var(--surface) 8px 16px);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px}
+.prod .t{padding:7px 8px}
+.prod .p{font-weight:800;font-size:13px}
+.prod .lo{color:var(--own);font-weight:700}
+.prod.so{opacity:.55}
+.lanes{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.lg{display:grid;grid-template-columns:140px repeat(6,minmax(140px,1fr));min-width:1120px}
+.lg>div{padding:9px 10px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-size:12.5px;min-width:0}
+.lg>div:nth-child(7n){border-right:0}
+.lg .hd{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;background:var(--sunk)}
+.lg .hd.c{color:var(--cust)} .lg .hd.o{color:var(--own)} .lg .hd.d{color:var(--disp)} .lg .hd.r{color:var(--rider)} .lg .hd.s{color:var(--sys)} .lg .hd.p{color:var(--adm)}
+.lg .step{background:var(--sunk)} .lg .step b{display:block;font-size:13px}
+.st{display:inline-block;font-family:var(--f-mono);font-size:10.5px;padding:2px 7px;border-radius:4px;background:var(--ink);color:var(--bg);margin-top:4px}
+.act{border-left:3px solid;padding-left:7px}
+.act.c{border-color:var(--cust)} .act.o{border-color:var(--own)} .act.d{border-color:var(--disp)} .act.r{border-color:var(--rider)} .act.s{border-color:var(--sys);color:var(--muted)} .act.p{border-color:var(--adm)}
+.lg .phase{grid-column:1/-1;background:var(--danfo);color:var(--danfo-ink);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.08em;border-right:0}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.filters button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;padding:5px 11px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--danfo);outline-offset:2px}
+.sev{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:4px;white-space:nowrap}
+.sev.h{background:var(--bad-bg);color:var(--bad)} .sev.m{background:var(--own-bg);color:var(--own)} .sev.l{background:var(--sunk);color:var(--muted)}
+.count{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.can{color:var(--rider);font-weight:700} .cant{color:var(--bad);font-weight:700} .lim{color:var(--own);font-weight:700}
+.dec td:first-child{font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+</style>
+
+<header class="top"><div class="wrap"><div class="in">
+  <h1>Ọ̀nà Lagos workflow</h1>
+  <p>The agreed design, in one place. Ọ̀nà is the logistics company: it owns the riders and vehicles, and SMEs send it packed orders. This page covers the five roles, ordering from stock, single and multiple orders, receipt payments, dispatch and combined routes, pickup waiting and failure, rider changes, congestion notices, both codes, claims, refunds, every error, the data and the tech choices.</p>
+  <span class="ver">v5 · logistics-company model · replaces every earlier version</span>
+</div></div></header>
+<nav class="sec wrap" aria-label="Sections"><div class="in">
+  <a href="#decisions"><span class="n">0</span>Decisions</a><a href="#roles"><span class="n">1</span>Roles</a><a href="#orders"><span class="n">2</span>Orders</a><a href="#pay"><span class="n">3</span>Payment</a><a href="#dispatch"><span class="n">4</span>Dispatch</a>
+  <a href="#pickup"><span class="n">5</span>Pickup</a><a href="#road"><span class="n">6</span>On the road</a><a href="#door"><span class="n">7</span>Delivery</a><a href="#money"><span class="n">8</span>Refunds & claims</a>
+  <a href="#see"><span class="n">9</span>Who sees what</a><a href="#status"><span class="n">10</span>Statuses</a><a href="#errors"><span class="n">11</span>Errors</a><a href="#data"><span class="n">12</span>Data</a><a href="#tech"><span class="n">13</span>Tech</a><a href="#diss"><span class="n">14</span>Dissertation</a><a href="#build"><span class="n">15</span>Starting the build</a>
+</div></nav>
+
+<main class="wrap">
+<section id="decisions"><h2><span class="n">0</span>Decisions log</h2>
+<div class="tw dec"><table><thead><tr><th>#</th><th>Decision</th></tr></thead><tbody>
+<tr><td>Model</td><td>Ọ̀nà is the logistics company. SMEs are clients; they pack, Ọ̀nà delivers</td></tr>
+<tr><td>Riders</td><td>Created by Ọ̀nà, attached to one vehicle (bike, car, van, truck). History kept across all businesses. No trailers</td></tr>
+<tr><td>Payment</td><td>Per order (or several orders in one transfer). Business transfers the fee, uploads the receipt, the super admin confirms, then dispatch. Riders never handle money; customers pay businesses for goods outside the app</td></tr>
+<tr><td>Codes</td><td>Pickup code (business → rider) starts the trip; delivery code (customer → rider) ends it</td></tr>
+<tr><td>Customers</td><td>Have accounts; one per email; businesses can only reach customers they send orders to</td></tr>
+<tr><td>Stock</td><td>Verity-style ledger per business; orders are built from it</td></tr>
+<tr><td>Window</td><td>The business sets a delivery window on every order</td></tr>
+<tr><td>Override</td><td>A locked delivery code is overridden by <b>Operations</b>, after verifying the customer by phone, with a reason</td></tr>
+<tr><td>Failure/cancel</td><td>Cancel before pickup: fee returned as credit on the next order. Customer-caused failed delivery: new fee to re-deliver. Ọ̀nà-caused: free re-delivery</td></tr>
+<tr><td>Claims</td><td>Rider-caused loss or damage: Ọ̀nà refunds the goods value. <b>Store-caused (damaged or badly packed in the pickup photo): the business's responsibility with its own customer</b> (confirmed). Unclear cases decided by Operations from the photos</td></tr>
+<tr><td>Multiple orders</td><td>Bulk entry, pack-and-request several at once, one receipt for several, one pickup code per visit</td></tr>
+<tr><td>Congestion</td><td>Customer and business told when traffic pushes the arrival past the window</td></tr>
+<tr><td>Pickup</td><td>Arrival check-in, 10 free minutes, then <b>₦200 per 5 minutes</b> waiting charge (confirmed), failed pickup at 20 minutes</td></tr>
+<tr><td>Rider change</td><td>Operations can swap riders mid-trip with a handover code; business and customer are told</td></tr>
+<tr><td>Accounts</td><td>Super admin creates businesses and Operations. Operations creates riders, vehicles and dispatch staff. Businesses don't create riders</td></tr>
+<tr><td>Claim rules</td><td>Up to ₦100,000 per order; 48 hours to claim; 24 hours for missing items</td></tr>
+<tr><td>Slots</td><td>Two-hour windows 8am–8pm Mon–Sat, 12–6 Sun; 15 orders per zone per slot; paid 1 hour before the slot</td></tr>
+<tr><td>Fees</td><td>By vehicle and distance band (section 4); placeholders the super admin can edit</td></tr>
+<tr><td>Receipts</td><td>Confirmed within 15 minutes in operating hours; escalated at 30</td></tr>
+<tr><td>Rider pay</td><td>Handled by Ọ̀nà; visible to super admin and Operations only, not in the rider app</td></tr>
+<tr><td>Name and logo</td><td>Not decided. “Ọ̀nà” is a working name throughout</td></tr>
+<tr><td>Tech</td><td>React + Supabase + Vercel, starting from a copy of the Verity project (section 15). Resend free plan for email (100 a day, 3,000 a month), OpenStreetMap/Leaflet maps, trip-only location with 30-day deletion</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="roles"><h2><span class="n">1</span>Five roles</h2>
+<div class="tw"><table><thead><tr><th>Role</th><th>Created by</th><th>Does</th><th>Doesn't</th></tr></thead><tbody>
+<tr><td><span class="who w-adm">Super admin</span><br><span class="small muted">Ọ̀nà management · the researcher in the study</span></td><td>Backend setup</td><td>Adds businesses and Operations staff. Sets fees. <b>Confirms payment receipts.</b> Sees revenue (delivery fees), all businesses, riders, issues. Prompts businesses</td><td>See goods value (except on claims, via Operations). Run day-to-day dispatch</td></tr>
+<tr><td><span class="who w-disp">Operations</span><br><span class="small muted">dispatch desk + support</span></td><td>Super admin</td><td>Creates riders, vehicles and dispatch staff. Assigns riders; accepts or edits route suggestions; handles waiting and failed pickups, rider changes, delivery disputes and code overrides; reviews claims; sees rider pay, availability and document expiry</td><td>See revenue totals or goods value (except a claimed value). Confirm payments</td></tr>
+<tr><td><span class="who w-own">Business owner</span></td><td>Super admin</td><td>Stock, orders (single or many), windows, packing, payment receipts, pickup code, goods complaints, performance dashboard</td><td>Choose riders. See other businesses, or customers it hasn't served. See the delivery code</td></tr>
+<tr><td><span class="who w-rider">Rider</span></td><td>Operations</td><td>Accepts routes, checks in at shops, takes condition photos, types pickup and delivery codes, reports failures and problems. No earnings screen: pay is handled by Ọ̀nà outside the rider app</td><td>Handle money. See prices or either code on screen</td></tr>
+<tr><td><span class="who w-cust">Customer</span></td><td>Themselves</td><td>Chooses the address, sees window and live map, rider name, vehicle and plate, checks items, gives the delivery code, rates, reports problems</td><td>Order goods in the app. Pay Ọ̀nà</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="orders"><h2><span class="n">2</span>Creating orders: one or many</h2>
+<div class="grid2">
+<div class="box"><h3>One order</h3><ol style="margin:0;padding-left:18px">
+<li>Pick items from stock (quantity ≤ available). Stock is reserved.</li>
+<li>Customer's email (typo check). Address entered, or the customer chooses it.</li>
+<li><b>Delivery window</b> from Ọ̀nà's slots: 8–10, 10–12, 12–2, 2–4, 4–6, 6–8 (Mon–Sat), 12–6 Sunday. Up to 15 orders per zone per slot; full slots are greyed out. Must be paid at least 1 hour before the slot starts, or it moves to the next slot.</li>
+<li>Vehicle suggested from item sizes; fee shown from Ọ̀nà's price list.</li></ol></div>
+<div class="box"><h3>Many orders</h3><ul style="margin:0;padding-left:18px">
+<li><b>Bulk entry:</b> upload a spreadsheet (one row per order: email, items, quantities, window), as Verity does. Each row is checked against stock; bad rows are listed, good rows created.</li>
+<li><b>Orders board:</b> tick several packed orders → <b>Request dispatch for 6 orders</b>, with the total fee.</li>
+<li><b>One transfer, one receipt</b> covers them all. The super admin confirms them together.</li>
+<li><b>One pickup visit:</b> the rider collects every order on that route from the shop with a single pickup code; the bag count must match.</li></ul></div></div>
+</section>
+
+<section id="pay"><h2><span class="n">3</span>Payment (Verity approach)</h2>
+<ol class="seq">
+<li><div><span class="who w-own">Owner</span>requests dispatch for one or more packed orders. Status <span class="chip">Awaiting payment</span>. Screen shows Ọ̀nà's account and a reference such as <span class="mono">DSM-1042</span>.</div></li>
+<li><div><span class="who w-own">Owner</span>transfers, enters the transfer reference, uploads the receipt (photo or PDF, private storage). Status <span class="chip">Payment check</span>. The 2-hour payment time limit pauses.</div></li>
+<li><div><span class="who w-adm">Super admin</span>checks the bank app, then <b>confirms</b> → <span class="chip main">Ready for pickup</span>, released to Operations. Or <b>rejects</b> with a reason (amount wrong, no transfer found, unreadable) → owner re-uploads. Third rejection closes the request.</div></li>
+<li><div><span class="who w-sys">App</span>shows the super admin how long each receipt has waited. <b>Target: confirmed within 15 minutes</b> during operating hours (8am–8pm Mon–Sat, 12–6 Sun); alert at 15 minutes, escalated at 30. After-hours receipts are confirmed by 8:30am. Credits and waiting charges are applied to the next payment automatically.</div></li>
+</ol>
+</section>
+
+<section id="dispatch"><h2><span class="n">4</span>Dispatch and combined routes</h2>
+<ul style="max-width:92ch;padding-left:18px;margin:0">
+<li>Operations sees every business's <b>paid</b> orders in one queue, with window, drop zone, vehicle and bags.</li>
+<li>The system <b>suggests combining</b> orders when pickups are within about 1 km, drops lie in the same direction, windows can all be met, and the bags fit one vehicle. Operations accepts, edits or keeps them separate.</li>
+<li>Only available riders whose vehicle is big enough, who aren't paused and whose papers aren't expired are offered. The rider accepts the whole route.</li>
+<li>Peak-traffic hours per zone are flagged on suggested routes before they are sent.</li>
+</ul>
+<h3 style="margin-top:14px">Fees (set by Ọ̀nà; editable by the super admin)</h3>
+<div class="tw"><table><thead><tr><th>Vehicle</th><th class="num">0–5 km</th><th class="num">5–15 km</th><th class="num">15–30 km</th><th class="num">30 km+</th></tr></thead><tbody>
+<tr><td><b>Bike</b></td><td class="num">₦1,500</td><td class="num">₦2,500</td><td class="num">₦4,000</td><td class="num">₦6,000</td></tr>
+<tr><td><b>Car</b></td><td class="num">₦3,000</td><td class="num">₦4,500</td><td class="num">₦7,000</td><td class="num">₦10,000</td></tr>
+<tr><td><b>Van</b></td><td class="num">₦6,000</td><td class="num">₦9,000</td><td class="num">₦13,000</td><td class="num">₦18,000</td></tr>
+<tr><td><b>Truck</b></td><td class="num">₦15,000</td><td class="num">₦22,000</td><td class="num">₦32,000</td><td class="num">₦45,000</td></tr>
+</tbody></table></div>
+<p class="lede" style="margin-top:6px">Distance is measured pickup to drop-off from the map pins. Each order in a combined route pays its own fee. Waiting: ₦200 per started 5 minutes after 10 free.</p>
+</section>
+
+<section id="pickup"><h2><span class="n">5</span>Pickup: waiting time and failed pickup</h2>
+<div class="tw"><table><thead><tr><th>Moment</th><th>What happens</th><th>Who is told</th></tr></thead><tbody>
+<tr><td><b>Rider taps Arrived at shop</b></td><td>App checks the rider is within ~150 m of the pickup pin. The 10-minute free wait starts</td><td>Owner: “Sunday is at your door”</td></tr>
+<tr><td><b>Parcel ready</b></td><td>Owner checks rider's name, photo and plate, hands over the bags. Rider photographs the bags, types the pickup code. Bag count must match</td><td>Customer: “Picked up”</td></tr>
+<tr><td><b>Owner needs time</b></td><td>Owner taps <b>Need 10 more minutes</b> (once). Waiting charge starts after the free 10 minutes (Ọ̀nà sets the rate, e.g. ₦200 per 5 minutes), added to the next payment</td><td>Operations; customer if the window is at risk</td></tr>
+<tr><td><b>Waiting charge</b></td><td>₦200 for each started 5 minutes after the free 10 (so 17 minutes waited = ₦400). Shown live on the owner's screen and in the rider app; added to the business's next payment and listed on its Payments tab. Not charged if the rider arrived before the agreed pickup time</td><td>Owner</td></tr>
+<tr><td><b>20 minutes, or owner taps Not ready</b></td><td>Rider records <b>Failed pickup</b> with a reason: shop closed · parcel not ready · bags don't match label · owner unreachable. Rider continues the rest of the route</td><td>Owner, Operations, customer: “Short delay at the shop. New time to follow”</td></tr>
+<tr><td><b>Caused by the business</b></td><td>Fee kept. Order returns to <span class="chip">Packed</span>; dispatching again needs a new fee</td><td>Owner</td></tr>
+<tr><td><b>Caused by the rider</b> (not arrived within 30 min of accepting)</td><td>Operations reassigns free of charge. Counts on the rider's record</td><td>Owner, customer</td></tr>
+<tr><td><b>Bags don't match</b></td><td>Rider doesn't type the code; reports mismatch; owner fixes the label or count, or the order is split</td><td>Operations</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="road"><h2><span class="n">6</span>On the road: congestion and rider changes</h2>
+<div class="grid2">
+<div class="box"><h3>Congestion notice</h3><p style="margin:0 0 6px">The estimated arrival is updated from the rider's position. When it slips past the window end:</p><ul style="margin:0;padding-left:18px"><li>Customer: “Heavy traffic on the Lekki–Epe Expressway. New estimate 4:20pm.”</li><li>Business: the same, on the order.</li><li>The late delivery is recorded with the reason “traffic”, so the dashboard separates traffic delays from other causes (RO4, PM_F1).</li></ul></div>
+<div class="box"><h3>Rider change mid-trip</h3><ol style="margin:0;padding-left:18px"><li>Rider reports a problem (breakdown, accident) or Operations decides to swap.</li><li>Operations assigns a second rider with a fitting vehicle and sends them to the first rider's location.</li><li>The first rider's app shows a <b>handover code</b>; the new rider types it after receiving the bags and photographing them.</li><li>Customer and business: “Your rider has changed to Musa · Bike LAG 845 KJ because of a vehicle problem.” The customer's delivery code stays the same.</li></ol></div></div>
+</section>
+
+<section id="door"><h2><span class="n">7</span>Delivery, failure and override</h2>
+<ul style="max-width:92ch;padding-left:18px;margin:0">
+<li><b>Normal:</b> customer checks the items, gives the delivery code, rider types it and photographs the handover.</li>
+<li><b>Code locked</b> (5 wrong tries) or customer's phone dead: rider calls <b>Operations</b>, who verify the customer by phone and record delivery with a reason. Logged in the audit trail; visible to the super admin and the business.</li>
+<li><b>Customer not home or unreachable:</b> failed attempt with reason; parcel goes back to the business. Re-delivery is a new dispatch with a new fee (customer-caused).</li>
+<li><b>Customer refuses an item:</b> failed attempt; complaint opened; parcel returned; the business decides about the goods.</li>
+<li><b>Ọ̀nà-caused failure</b> (wrong address taken, rider no-show at the door): free re-delivery.</li>
+</ul>
+</section>
+
+<section id="money"><h2><span class="n">8</span>Cancellations, refunds and claims</h2>
+<div class="tw"><table><thead><tr><th>Case</th><th>Outcome</th></tr></thead><tbody>
+<tr><td>Business cancels before payment</td><td>Nothing owed; stock released</td></tr>
+<tr><td>Business cancels after payment, before pickup</td><td>Fee returned as <b>credit</b> on the next payment</td></tr>
+<tr><td>Failed pickup caused by the business</td><td>Fee kept; new fee to dispatch again</td></tr>
+<tr><td>Failed delivery caused by the customer</td><td>Fee kept; new fee to re-deliver</td></tr>
+<tr><td>Failed delivery or pickup caused by Ọ̀nà</td><td>Free re-delivery</td></tr>
+<tr><td><b>Lost or damaged, caused by the rider</b> (intact in the pickup photo, damaged or missing at the door)</td><td>Ọ̀nà refunds the <b>goods value</b> claimed by the business, with proof of price. Paid by transfer; recorded against the rider</td></tr>
+<tr><td><b>Damaged, caused by the store</b> (damaged, wrong item or badly packed in the pickup photo)</td><td><b>Confirmed:</b> the business's responsibility. It deals with its customer (replacement, refund or exchange) and Ọ̀nà isn't liable. Ọ̀nà records it as a goods complaint, shows the business the pickup photo as evidence, and the case counts on the business's dashboard as a packing issue. If the business disputes it, Operations reviews the photos and timeline</td></tr>
+<tr><td>Unclear</td><td>Operations decides from photos, timeline and statements; outcome logged</td></tr>
+</tbody></table></div>
+<div class="flag"><b>Claim rules (set):</b> Ọ̀nà pays at most <b>₦100,000 per order</b> for rider-caused loss or damage, against proof of price. Claims within <b>48 hours</b> of delivery; missing items within <b>24 hours</b>, because the customer checked the items at the door. Late claims are refused automatically.</div>
+</section>
+
+<section id="see"><h2><span class="n">9</span>Who sees what</h2>
+<div class="tw"><table><thead><tr><th>Information</th><th>Super admin</th><th>Operations</th><th>Business owner</th><th>Rider</th><th>Customer</th></tr></thead><tbody>
+<tr><td><b>Revenue, fee totals</b></td><td class="can">Yes</td><td class="cant">No</td><td class="lim">Own fees</td><td class="cant">No</td><td class="cant">No</td></tr>
+<tr><td><b>Fee on an order, payment status</b></td><td class="can">Yes</td><td class="lim">Status only</td><td class="can">Own</td><td class="cant">No</td><td class="cant">No</td></tr>
+<tr><td><b>Payment receipts</b></td><td class="can">Yes</td><td class="cant">No</td><td class="can">Own</td><td class="cant">No</td><td class="cant">No</td></tr>
+<tr><td><b>Goods value, prices, stock</b></td><td class="cant">No</td><td class="lim">Claimed value on a claim only</td><td class="can">Own</td><td class="cant">No</td><td class="lim">Own order</td></tr>
+<tr><td><b>Customer address and phone</b></td><td class="lim">Zone only</td><td class="can">For routing and disputes</td><td class="lim">Own orders</td><td class="lim">Current job</td><td class="can">Own</td></tr>
+<tr><td><b>Rider history, availability, documents</b></td><td class="can">Yes</td><td class="can">Yes</td><td class="lim">Rating, plate, own jobs</td><td class="lim">Own history</td><td class="lim">Name, phone, vehicle, plate on own order</td></tr>
+<tr><td><b>Rider pay</b></td><td class="can">Yes</td><td class="can">Yes</td><td class="cant">No</td><td class="cant">Not in the app</td><td class="cant">No</td></tr>
+<tr><td><b>Live location</b></td><td class="can">Yes</td><td class="can">Yes</td><td class="lim">Own orders in transit</td><td class="lim">Own</td><td class="lim">Own order in transit</td></tr>
+<tr><td><b>Codes</b></td><td class="cant">No</td><td class="lim">Can override delivery, logged</td><td class="lim">Shows pickup code</td><td class="lim">Types them</td><td class="lim">Shows delivery code</td></tr>
+<tr><td><b>Complaints and claims</b></td><td class="can">All</td><td class="can">All</td><td class="lim">Own</td><td class="lim">Statements asked of them</td><td class="lim">Own</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="status"><h2><span class="n">10</span>Order statuses</h2>
+<div class="box"><span class="chip">Awaiting address</span><span class="arrow">→</span><span class="chip">Received</span><span class="arrow">→</span><span class="chip">Packed</span><span class="arrow">→</span><span class="chip">Awaiting payment</span><span class="arrow">→</span><span class="chip">Payment check</span><span class="arrow">→</span><span class="chip">Ready for pickup</span><span class="arrow">→</span><span class="chip">Rider assigned</span><span class="arrow">→</span><span class="chip">Rider at shop</span><span class="arrow">→</span><span class="chip">Out for delivery</span><span class="arrow">→</span><span class="chip main">Delivered</span>
+<div style="margin-top:8px">Off the main path: <span class="chip off">Payment rejected</span><span class="chip off">Waiting for restock</span><span class="chip off">Failed pickup</span><span class="chip off">Rider changing</span><span class="chip off">Failed delivery</span><span class="chip off">Returned</span><span class="chip off">Cancelled</span><span class="chip off">Claim open</span></div>
+<p class="lede" style="margin:8px 0 0">Every move writes one event with who, when and why. Moves not in the allowed list are refused (Verity's transitions table).</p></div>
+</section>
+
+<section id="errors"><h2><span class="n">11</span>Errors the build must handle</h2>
+<div class="filters" id="ef" role="group" aria-label="Filter errors by area"></div><div class="count" id="ec"></div>
+<div class="tw"><table><thead><tr><th>Area</th><th>What goes wrong</th><th>What the system does</th><th>Risk</th></tr></thead><tbody id="eb"></tbody></table></div>
+</section>
+
+<section id="data"><h2><span class="n">12</span>Data</h2>
+<div class="tw"><table><thead><tr><th>Table</th><th>Key fields</th></tr></thead><tbody>
+<tr><td class="mono">users</td><td class="mono">email/phone, password_hash, role (super_admin · operations · owner · rider), business_id, active</td></tr>
+<tr><td class="mono">businesses</td><td class="mono">name, case_no, pickup_address, pickup_pin, hours, sector, active</td></tr>
+<tr><td class="mono">customers · customer_addresses · business_customers</td><td class="mono">one account per email; private addresses; business-scoped links</td></tr>
+<tr><td class="mono">products · stock_movements</td><td class="mono">per business; size_class drives vehicle suggestion</td></tr>
+<tr><td class="mono">orders · order_items</td><td class="mono">window_start/end, vehicle_type, fee, bags, address copy, status</td></tr>
+<tr><td class="mono">dispatch_requests</td><td class="mono">business_id, order_ids[], total_fee, credit_applied, status</td></tr>
+<tr><td class="mono">payments</td><td class="mono">request_id, amount, reference, receipt_path, attempt, status, reject_reason, confirmed_by, confirmed_at</td></tr>
+<tr><td class="mono">credits</td><td class="mono">business_id, amount, reason, used_on_request_id</td></tr>
+<tr><td class="mono">fees</td><td class="mono">vehicle_type, distance_band, amount; waiting_rate</td></tr>
+<tr><td class="mono">riders · vehicles</td><td class="mono">rider: user_id, vehicle_id, status, licence_expiry; vehicle: type, plate, capacity, status</td></tr>
+<tr><td class="mono">routes · route_stops</td><td class="mono">rider_id, suggested_order, actual_order, overridden; stop: kind (pickup · drop · handover), order_ids, arrived_at, done_at, photo_path</td></tr>
+<tr><td class="mono">codes</td><td class="mono">kind (pickup · delivery · handover), code_hash, failed_attempts, used_at</td></tr>
+<tr><td class="mono">rider_locations</td><td class="mono">route_id, lat, lng, at — raw points deleted after 30 days; trip summary kept</td></tr>
+<tr><td class="mono">rider_payouts</td><td class="mono">rider_id, period, trips, amount, reference, status · read by super admin and Operations only</td></tr>
+<tr><td class="mono">slots</td><td class="mono">zone, weekday, start, end, capacity (15), cutoff_minutes (60)</td></tr>
+<tr><td class="mono">claims</td><td class="mono">order_id, cause (rider · store · unclear), claimed_value, proof_path, decision, refund_reference</td></tr>
+<tr><td class="mono">order_events · complaints · issues · notifications · audit_log</td><td class="mono">history, threads, feed, Resend email log, overrides</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="tech"><h2><span class="n">13</span>Tech choices</h2>
+<div class="tw"><table><thead><tr><th>Part</th><th>Choice</th><th>Note</th></tr></thead><tbody>
+<tr><td>App</td><td>React + Vite, Supabase (Postgres, Auth, Storage, Realtime, cron), Vercel</td><td>Reuses Verity's patterns: role checks in every function, row-level security, transitions table, stock ledger, receipt upload</td></tr>
+<tr><td>Email</td><td>Resend, free plan</td><td>3,000 emails a month, at most 100 a day; sending pauses at the cap. At ~5 emails per order that is ~20 orders a day, enough for the study. Send only 3 per order (sent, out for delivery with code, delivered) to stretch it; in-app notifications cover the rest. Verify the sending domain (DNS) and point Supabase Auth's email at Resend. Alternative: Brevo free, 300 a day, after its support activates sending</td></tr>
+<tr><td>Maps</td><td>OpenStreetMap data with Leaflet</td><td>Free. For real traffic, load tiles from a provider with a free tier (e.g. MapTiler) rather than OSM's own servers. ETA from distance and vehicle speed</td></tr>
+<tr><td>Location</td><td>Phone's browser location during an open trip only</td><td>About every 30 s; stops when the trip closes; raw points deleted after 30 days, summary kept. iPhones pause it when the app is in the background</td></tr>
+<tr><td>Testing</td><td>SQL tests per rule and role (as Verity)</td><td>Including: business can't read another business's customers; Operations can't read revenue; super admin can't read goods value</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="diss"><h2><span class="n">14</span>Dissertation reframe checklist</h2>
+<div class="tw"><table><thead><tr><th>Where</th><th>Change</th></tr></thead><tbody>
+<tr><td>Chapter 1, Objective 1 and 1.8</td><td>Framework delivered through a logistics provider serving SMEs; coded build, not no-code</td></tr>
+<tr><td>1.6</td><td>Remove the hypotheses or restate as propositions (three cases can't test them)</td></tr>
+<tr><td>Chapter 2, 2.7 and 2.12</td><td>Dispatch coordination is now between SME and provider, with the provider managing riders. Keep Hart's point by explaining what stays low-barrier for the SME</td></tr>
+<tr><td>Chapter 3, 3.4</td><td>Already covers SMEs using gig-platform riders; say Ọ̀nà is that platform</td></tr>
+<tr><td>Table 3.4 and questionnaire D, E</td><td>Reword to “coordination with your delivery provider” and “route planning by your provider”; owners see the Operations screens in the walkthrough</td></tr>
+<tr><td>3.12</td><td>Riders' IDs and locations, customers' addresses, receipts: sample data only. Real launch would need an NDPA 2023 check</td></tr>
+</tbody></table></div>
+</section>
+<section id="build"><h2><span class="n">15</span>Starting the build: what “build on Verity” means</h2>
+<p class="lede">Verity is your existing app in your GitHub account (React + Supabase). It already does several things Ọ̀nà needs. Instead of starting from an empty project, you <b>copy</b> Verity into a new project for Ọ̀nà, keep what fits, change what's close, delete what doesn't apply, and add what's new. Verity itself is untouched, and the two apps never share a database.</p>
+<div class="tw"><table><thead><tr><th>Verity already has</th><th>In Ọ̀nà</th><th>Action</th></tr></thead><tbody>
+<tr><td>Login, roles, password change on first login, idle sign-out</td><td>Same idea, different role names</td><td class="can">Keep, rename roles</td></tr>
+<tr><td>Row-level security and a role check in every function</td><td>The privacy rules in section 9</td><td class="can">Keep, rewrite the rules</td></tr>
+<tr><td>Order status table that refuses illegal moves</td><td>The statuses in section 10</td><td class="can">Keep, new status list</td></tr>
+<tr><td>Products, stock in, adjustments, reserved stock, shortage options</td><td>Each business's stock</td><td class="lim">Adapt: add business_id so each business has its own stock</td></tr>
+<tr><td>Bank transfer + receipt upload + Finance confirms + 3 tries</td><td>Fee payment, confirmed by the super admin</td><td class="lim">Adapt: pay the delivery fee, not an invoice</td></tr>
+<tr><td>Delivery code shown to the customer, typed by the driver</td><td>Delivery code</td><td class="can">Keep; add pickup and handover codes the same way</td></tr>
+<tr><td>Driver app that can't see prices</td><td>Rider app</td><td class="lim">Adapt: routes, arrival, photos, location</td></tr>
+<tr><td>Vehicles table, dispatch assigning driver and vehicle</td><td>Operations dispatch</td><td class="lim">Adapt: add route suggestions and multiple businesses</td></tr>
+<tr><td>Notifications table, live updates, scheduled jobs</td><td>Notifications, payment time limit, waiting timers</td><td class="can">Keep; connect Resend for email</td></tr>
+<tr><td>Spreadsheet upload parser</td><td>Bulk order entry</td><td class="lim">Adapt columns</td></tr>
+<tr><td>500-order simulation and SQL tests</td><td>Testing the rules for Chapter 4</td><td class="lim">Adapt to Ọ̀nà's rules</td></tr>
+<tr><td>Customer self-ordering, approval desk, invoices with tax, credit notes, Verity's Chapter 4 files</td><td>Not used</td><td class="cant">Delete</td></tr>
+<tr><td>—</td><td>Customer linkage, address choice, live map, combined routes, waiting charge, rider change, claims, condition photos, super admin revenue</td><td class="cant">Build new</td></tr>
+</tbody></table></div>
+<div class="flag"><b>Check before copying:</b> if Verity was submitted for another course or built by a group, ask your supervisor whether reusing its code is allowed, and say in Chapter 4 that Ọ̀nà started from it. Re-using your own earlier work without saying so can be treated as self-plagiarism.</div>
+<div class="flag">The alternative is to start from an empty project with the same tools. Nothing is lost except time: the pieces marked “Keep” would be written again.</div>
+</section>
+</main>
+<script>
+(function(){
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const E=[
+["Accounts","Customer signs up with an existing email","Refused: sign in or reset","l"],
+["Accounts","Removed Operations staff still logged in","Session ended when the account is disabled","h"],
+["Customers","Owner mistypes the customer's email","Typo suggestion; fixable until packed; invite expires in 30 days","h"],
+["Customers","Business tries to find a customer it hasn't served","No search exists","h"],
+["Orders","Bulk upload has bad rows (unknown item, not enough stock, bad email)","Good rows created, bad rows listed with reasons","m"],
+["Orders","Window chosen with no slot left in that zone","Next available slots offered","m"],
+["Stock","Two orders for the last item","Reservation inside a database lock","h"],
+["Stock","Item missing at packing","Send what's packed, wait for restock, or cancel","m"],
+["Payment","Receipt amount doesn't match the fee","Rejected with reason; re-upload","h"],
+["Payment","Fake or edited receipt","Super admin checks the bank app, never the image alone","h"],
+["Payment","Same receipt reused for another order","Transfer reference must be unique; duplicate refused","h"],
+["Payment","Receipts waiting too long","Wait time shown; alert after 30 min in working hours","m"],
+["Payment","Not paid within 2 hours","Dispatch request lapses; order stays packed","l"],
+["Dispatch","No rider with a fitting vehicle available","Order waits; business and customer told if the window is at risk","m"],
+["Dispatch","Rider declines or doesn't answer in 10 min","Offer returns to Operations","m"],
+["Dispatch","Combined route would break a window","Not suggested","m"],
+["Pickup","Rider taps Arrived but is far from the shop","Refused: must be within ~150 m","m"],
+["Pickup","Parcel not ready after 20 min","Failed pickup by the business; fee kept","m"],
+["Pickup","Rider doesn't arrive within 30 min of accepting","Operations reassigns free; rider record","m"],
+["Pickup","Bags don't match the label","Code not entered; owner fixes or splits","m"],
+["Pickup","Wrong pickup code 5 times","Locked; Operations checks rider and order","h"],
+["Road","Rider's phone stops sending location","Map shows last position; stale alert at 30 min","m"],
+["Road","Traffic pushes arrival past the window","Congestion notice to customer and business; late reason recorded","l"],
+["Road","Breakdown or accident","Operations swaps rider; handover code; both sides told","h"],
+["Delivery","Wrong delivery code 5 times / phone dead","Operations verifies by phone and overrides with reason","h"],
+["Delivery","Customer not home","Failed delivery; parcel returned; new fee to re-deliver","m"],
+["Delivery","Customer refuses an item","Failed delivery; complaint; return","m"],
+["Claims","Damaged at the door, intact at pickup","Rider-caused; goods value refunded up to the limit","h"],
+["Claims","Damaged in the pickup photo","Store-caused; goods complaint for the business","m"],
+["Claims","No photos","Operations decides from timeline and statements","m"],
+["Access","Operations tries to read revenue","Database returns nothing (tested)","h"],
+["Access","Super admin tries to read goods value","Database returns nothing (tested)","h"],
+["Email","Resend fails or domain not verified","In-app notification still shows; retries logged","m"],
+["Claims","Claim made after 48 hours (24 for missing items)","Refused automatically with the deadline shown","l"],
+["Orders","Paid less than 1 hour before the slot","Order moves to the next slot; business and customer told","l"],
+["Email","Daily free cap (100) reached","Remaining emails queue for the next day; in-app notifications still show; super admin warned at 80","m"],
+["Pickup","Waiting charge disputed by the business","Arrival time, location check and handover time are on record; Operations reviews","l"],
+["System","Network drops as the rider confirms","Queued and resent; duplicates ignored","m"],
+];
+const A=["All",...new Set(E.map(e=>e[0]))];let cur="All";const L={h:"High",m:"Medium",l:"Low"};
+function draw(){document.getElementById("ef").innerHTML=A.map(a=>`<button aria-pressed="${a===cur}" data-a="${esc(a)}">${esc(a)} <span class="count">${a==="All"?E.length:E.filter(e=>e[0]===a).length}</span></button>`).join("");
+ const r=E.filter(e=>cur==="All"||e[0]===cur);document.getElementById("ec").textContent=`${r.length} cases · ${r.filter(x=>x[3]==="h").length} high risk`;
+ document.getElementById("eb").innerHTML=r.map(e=>`<tr><td><b>${esc(e[0])}</b></td><td>${esc(e[1])}</td><td>${esc(e[2])}</td><td><span class="sev ${e[3]}">${L[e[3]]}</span></td></tr>`).join("")}
+document.getElementById("ef").addEventListener("click",ev=>{const b=ev.target.closest("button");if(b){cur=b.dataset.a;draw()}});draw();
+})();
+</script>

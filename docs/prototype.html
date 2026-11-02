@@ -1,0 +1,505 @@
+<title>Ọ̀nà Frames</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: clickable frame set. Danfo bar with role switcher, presenter strip that says what to click next, then either a console (super admin / owner / dispatcher) or a phone frame (rider / customer) beside notes. One shared live order runs through every role. */
+:root{
+  --bg:#f6f5f0; --surface:#ffffff; --sunk:#eeece4; --ink:#17160f; --muted:#646152; --line:#dcd9cc;
+  --danfo:#f2b705; --danfo-ink:#17160f;
+  --cust:#2a5c9a; --own:#8a6400; --disp:#6a4c9c; --rider:#1f7a45; --adm:#9a3a2a; --bad:#b3261e; --ok:#1f7a45;
+  --cust-bg:#e2ebf6; --own-bg:#fbefd9; --disp-bg:#ece6f6; --rider-bg:#e3f2e8; --adm-bg:#f6e3dd; --bad-bg:#f9e1df; --ok-bg:#e3f2e8;
+  --water:#cfe0ea; --land:#eceadf; --road:#ffffff; --road-edge:#d4d0c2;
+  --f-ui:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14130e; --surface:#1d1c16; --sunk:#26241d; --ink:#efece0; --muted:#a8a491; --line:#34322a;
+  --cust:#8ab4f8; --own:#f2c440; --disp:#c3a6f0; --rider:#6fcf97; --adm:#f0a08c; --bad:#f28b82; --ok:#6fcf97;
+  --cust-bg:#1c2a3d; --own-bg:#3a2c14; --disp-bg:#2a2140; --rider-bg:#1d3326; --adm-bg:#3a221c; --bad-bg:#3d1f1c; --ok-bg:#1d3326;
+  --water:#1b2a33; --land:#232219; --road:#3a382e; --road-edge:#2c2a22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14130e; --surface:#1d1c16; --sunk:#26241d; --ink:#efece0; --muted:#a8a491; --line:#34322a;
+  --cust:#8ab4f8; --own:#f2c440; --disp:#c3a6f0; --rider:#6fcf97; --adm:#f0a08c; --bad:#f28b82; --ok:#6fcf97;
+  --cust-bg:#1c2a3d; --own-bg:#3a2c14; --disp-bg:#2a2140; --rider-bg:#1d3326; --adm-bg:#3a221c; --bad-bg:#3d1f1c; --ok-bg:#1d3326;
+  --water:#1b2a33; --land:#232219; --road:#3a382e; --road-edge:#2c2a22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--danfo)}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--danfo);color:var(--danfo-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:6;border-bottom:5px solid var(--danfo-ink)}
+.top .in{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-block:9px}
+.brand{font-weight:800;font-size:17px;margin-right:auto}
+.brand small{font-weight:600;font-size:11px;letter-spacing:.07em;text-transform:uppercase;opacity:.7;margin-left:6px}
+.roles{display:flex;gap:4px;flex-wrap:wrap}
+.roles button{font:inherit;font-size:12.5px;font-weight:700;border:2px solid var(--danfo-ink);background:transparent;color:var(--danfo-ink);border-radius:99px;padding:5px 11px;cursor:pointer}
+.roles button[aria-pressed="true"]{background:var(--danfo-ink);color:var(--danfo)}
+.roles button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bad);margin-left:6px;vertical-align:middle}
+.guide{background:var(--surface);border-bottom:1px solid var(--line)}
+.guide .in{max-width:1280px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-block:8px;font-size:13px}
+.guide .step{font-family:var(--f-mono);font-size:11px;background:var(--ink);color:var(--bg);padding:2px 8px;border-radius:4px}
+.guide .msg{flex:1;min-width:200px}
+.guide .msg b{color:var(--ink)}
+main{max-width:1280px;margin:0 auto;padding-block:16px 60px}
+h1{font-size:21px;margin:0 0 2px;letter-spacing:-.01em;text-wrap:balance}
+h2{font-size:14px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sub{color:var(--muted);margin:0 0 14px;max-width:80ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.tile .v{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .h{font-size:12px;color:var(--muted)}
+.tile.alert{border-color:var(--bad)} .tile.alert .v{color:var(--bad)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;min-width:0}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;align-items:start}
+.grid2e{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:900px){.grid2,.grid2e{grid-template-columns:minmax(0,1fr)}}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;background:var(--sunk);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono);font-size:12px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;background:var(--sunk)}
+.p-ok{background:var(--ok-bg);color:var(--ok)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-warn{background:var(--own-bg);color:var(--own)} .p-info{background:var(--cust-bg);color:var(--cust)} .p-dark{background:var(--ink);color:var(--bg)}
+.b{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:6px;cursor:pointer}
+.b:hover{border-color:var(--ink)}
+.b.pri{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.b.go{background:var(--rider);color:#fff;border-color:var(--rider)}
+.b.warn{border-color:var(--adm);color:var(--adm)}
+.b:disabled{opacity:.4;cursor:not-allowed}
+.b.full{width:100%;padding:10px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--danfo);outline-offset:2px}
+input,select,textarea{font:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:700;color:var(--muted)}
+.issue{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.issue:last-child{border-bottom:0}
+.issue .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.ic.bad{background:var(--bad-bg);color:var(--bad)} .ic.warn{background:var(--own-bg);color:var(--own)}
+.issue .t{font-weight:700} .issue .s{font-size:12px;color:var(--muted)}
+.banner{background:var(--adm-bg);border:1px solid var(--adm);border-radius:8px;padding:10px 12px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner .msg{flex:1;min-width:220px}
+.bars .r{display:grid;grid-template-columns:minmax(0,140px) minmax(0,1fr) 78px;gap:8px;align-items:center;font-size:12.5px;margin:6px 0}
+.bars .t{height:16px;border-radius:3px;background:var(--rider)}
+.bars .v{text-align:right;font-family:var(--f-mono);font-size:12px}
+.privacy{font-size:12px;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
+/* phone */
+.stage{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.stage{grid-template-columns:minmax(0,1fr)}}
+.phone{width:360px;max-width:100%;margin:0 auto;background:var(--surface);border:10px solid #15140f;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.phone .sb{display:flex;justify-content:space-between;font-size:11px;font-weight:700;padding:6px 16px;background:var(--surface)}
+.phone .ab{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-weight:800}
+.phone .ab.rider{background:var(--rider);color:#fff} .phone .ab.cust{background:var(--danfo);color:var(--danfo-ink)}
+.phone .bd{padding:12px 14px 18px;display:flex;flex-direction:column;gap:10px;min-height:520px}
+.notes{max-width:60ch}
+.notes li{margin:4px 0}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding-bottom:12px;position:relative}
+.timeline li::before{content:"";position:absolute;left:9px;top:18px;bottom:0;width:2px;background:var(--line)}
+.timeline li:last-child::before{display:none}
+.timeline .d{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);background:var(--surface)}
+.timeline li.done .d{background:var(--rider);border-color:var(--rider)}
+.timeline li.now .d{background:var(--danfo);border-color:var(--danfo-ink)}
+.timeline .tt{font-weight:700;font-size:13px} .timeline .ts{font-size:12px;color:var(--muted)}
+.timeline li.todo .tt{color:var(--muted);font-weight:600}
+.code{font-family:var(--f-mono);font-size:34px;letter-spacing:.3em;text-align:center;background:var(--sunk);border-radius:8px;padding:10px;font-weight:500}
+.ridercard{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--sunk);border-radius:10px;padding:10px}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--rider);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.map{border-radius:10px;overflow:hidden;border:1px solid var(--line);position:relative}
+.map svg{display:block;width:100%;height:auto}
+.map .upd{position:absolute;left:8px;top:8px;background:var(--surface);border:1px solid var(--line);border-radius:99px;font-size:11px;font-weight:700;padding:3px 9px}
+.map .sim{position:absolute;right:8px;top:8px;background:var(--ink);color:var(--bg);border-radius:4px;font-size:10px;font-weight:700;padding:2px 6px;letter-spacing:.04em}
+.eta{display:flex;justify-content:space-between;font-size:13px}
+.eta b{font-size:18px}
+.stars button{font-size:24px;background:none;border:0;cursor:pointer;color:var(--line);padding:0 2px}
+.stars button.on{color:var(--danfo)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:700;z-index:50;max-width:calc(100% - 32px)}
+.notice{background:var(--cust-bg);border-radius:8px;padding:10px 12px;font-size:13px}
+.muted{color:var(--muted)} .small{font-size:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.email{border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12.5px;background:var(--bg)}
+.email .from{font-weight:700}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.subtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:0 0 14px;overflow-x:auto}
+.subtabs button{font:inherit;font-weight:700;font-size:13px;border:0;background:none;color:var(--muted);padding:9px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.subtabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--danfo)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bad);margin-left:6px;vertical-align:middle}
+.ptabs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:var(--surface)}
+.ptabs button{font:inherit;font-size:12px;font-weight:700;border:0;background:none;color:var(--muted);padding:10px 4px;cursor:pointer}
+.ptabs button[aria-pressed="true"]{color:var(--ink);box-shadow:inset 0 3px 0 var(--danfo)}
+.phone .bd{min-height:540px;max-height:640px;overflow-y:auto}
+.items{list-style:none;margin:0;padding:0;font-size:13px}
+.items li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.items li:last-child{border-bottom:0}
+.ocard{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:left;font:inherit;background:var(--surface);color:var(--ink);cursor:pointer;width:100%}
+.addr{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;cursor:pointer}
+.addr input{width:auto;margin-top:3px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.line{display:grid;grid-template-columns:minmax(0,1fr) 80px auto;gap:8px;align-items:end;margin-bottom:8px}
+.hint{font-size:12px;color:var(--own);font-weight:700}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px}
+.chk input{width:auto}
+.mv{font-family:var(--f-mono);font-size:12px}
+.veh{display:inline-block;font-family:var(--f-mono);font-size:11px;font-weight:600;background:var(--sunk);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.sugg{border:2px solid var(--rider);background:var(--rider-bg);border-radius:10px;padding:12px;margin-bottom:12px}
+.sugg h3{margin:0 0 4px;font-size:15px}
+.stops{list-style:none;margin:6px 0 0;padding:0;font-size:13px}
+.stops li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);align-items:center}
+.stops li:last-child{border-bottom:0}
+.stops .n{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.n.pk{background:var(--own)} .n.dr{background:var(--bad)}
+.kbar{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr) 44px;gap:8px;align-items:center;font-size:12.5px;margin:5px 0}
+.kbar .t{height:14px;border-radius:3px;background:var(--bad)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.slot{font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);border-radius:8px;padding:7px 6px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:center}
+.slot small{display:block;font-weight:500;color:var(--muted)}
+.slot[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.slot[aria-pressed="true"] small{color:var(--bg)}
+.slot:disabled{opacity:.4;cursor:not-allowed;text-decoration:line-through}
+.photo{width:74px;height:56px;border-radius:6px;background:var(--sunk);border:1px solid var(--line);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--muted);gap:2px;vertical-align:top}
+.photo b{font-size:16px;color:var(--ink)}
+.timer{font-family:var(--f-mono);font-size:22px;font-weight:500}
+.notice.warn{background:var(--own-bg)} .notice.bad{background:var(--bad-bg)}
+.demo{font:inherit;font-size:11px;font-weight:700;border:1px dashed var(--muted);background:none;color:var(--muted);border-radius:6px;padding:4px 8px;cursor:pointer}
+.sel{width:auto}
+.phone .bd>*{flex-shrink:0}
+</style>
+
+<header class="top"><div class="wrap"><div class="in">
+  <div class="brand">Ọ̀nà <small>working name · frames</small></div>
+  <div class="roles" id="roles" role="group" aria-label="Choose whose screen to see"></div>
+</div></div></header>
+<div class="guide wrap"><div class="in"><span class="step" id="gstep"></span><span class="msg" id="gmsg"></span><button class="b" id="reset">Restart demo</button></div></div>
+<main class="wrap" id="main"></main>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const naira=n=>"₦"+Math.round(n).toLocaleString("en-NG");
+const ROLES=[["super","Super admin"],["ops","Operations"],["owner","Business owner"],["rider","Rider app"],["cust","Customer app"]];
+const VT=["Bike","Car","Van","Truck"],BANDS=["0–5 km","5–15 km","15–30 km","30 km+"];
+const FEES={Bike:[1500,2500,4000,6000],Car:[3000,4500,7000,10000],Van:[6000,9000,13000,18000],Truck:[15000,22000,32000,45000]};
+const fee=(v,b)=>FEES[v][BANDS.indexOf(b)];
+const BIZ={1:"Adunni Boutique",2:"Mama Tee Bakery",3:"Gadget Hub",4:"Kemi's Kitchen"};
+const SLOTS=[["12–2pm","In progress",0],["2–4pm","Cut-off passed",0],["4–6pm","9 left",9],["6–8pm","Full",0]];
+const TYPO={"gmial.com":"gmail.com","gmal.com":"gmail.com","gamil.com":"gmail.com","yahooo.com":"yahoo.com"};
+let start=Date.now();
+function now(off=0){const d=new Date(2026,9,31,14,40+off+Math.floor((Date.now()-start)/12000));return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+function fresh(){return {
+  stats:{1:{del:148,ok:142,fees:310500,cust:94,comp:3},2:{del:212,ok:202,fees:684000,cust:131,comp:4},3:{del:96,ok:87,fees:276000,cust:71,comp:7},4:{del:64,ok:62,fees:121500,cust:48,comp:1}},
+  products:[{id:1,name:"Ankara wrap dress · green · size 12",price:28500,on:2,res:0,size:"Small"},{id:2,name:"Raffia tote · natural",price:12000,on:5,res:1,size:"Small"},{id:3,name:"Standing mirror (boxed)",price:65000,on:3,res:0,size:"Large"}],
+  moves:[["Mon 09:00","Ankara wrap dress · size 12","in +3","Opening stock"],["Mon 09:00","Raffia tote","in +5","Opening stock"],["Thu 09:40","Ankara wrap dress · size 12","adjust −1","Sold in shop"],["Fri 10:15","Raffia tote","reserve +1","Order #1043"]],
+  addresses:[{id:1,label:"Home",street:"14 Bisola Durosinmi-Etti Dr",area:"Ikate",km:4.2,landmark:"opposite the filling station"},{id:2,label:"Office",street:"5 Adeola Odeku St",area:"Victoria Island",km:9.1,landmark:"beside the bank"}],
+  orders:{
+   1043:{id:1043,biz:1,name:"Bisi A.",area:"Chevron",lines:[{pid:2,qty:1}],slot:"4–6pm",veh:"Bike",band:"5–15 km",fee:2500,bags:1,status:"Packed"},
+   3051:{id:3051,biz:4,name:"Tunde A.",area:"Chevron",lines:[],slot:"4–6pm",veh:"Bike",band:"5–15 km",fee:2500,bags:1,status:"Ready for pickup",paid:true}},
+  live:null,request:null,route:null,claim:null,swap:null,locked:false,
+  riders:[
+   {id:1,name:"Sunday Okon",short:"Sunday",phone:"0803 555 0142",veh:1,status:"Available",del:412,ontime:92,rating:4.8,comp:2,docs:"Licence to Mar 2027",pay:46500},
+   {id:2,name:"Musa Bello",short:"Musa",phone:"0805 555 0119",veh:2,status:"Available",del:288,ontime:88,rating:4.6,comp:3,docs:"Licence to Jan 2027",pay:31000},
+   {id:3,name:"Chinedu Eze",short:"Chinedu",phone:"0806 555 0177",veh:3,status:"On a trip",del:173,ontime:81,rating:4.4,comp:5,docs:"Licence expires 14 Nov",pay:22500},
+   {id:4,name:"Ifeanyi Obi",short:"Ifeanyi",phone:"0809 555 0161",veh:4,status:"Available",del:96,ontime:90,rating:4.7,comp:1,docs:"Licence to Aug 2027",pay:58000}],
+  vehicles:{1:{type:"Bike",plate:"LAG 123 XY",cap:3},2:{type:"Bike",plate:"LAG 845 KJ",cap:3},3:{type:"Van",plate:"KJA 204 BC",cap:40},4:{type:"Truck",plate:"APP 771 LT",cap:200}},
+  staff:[["Bola K.","Operations"],["Femi D.","Dispatch staff"]],
+  cust:{logged:false,tab:"orders",view:"list"},
+  issues:[{id:"i1",kind:"Late delivery",who:"Mama Tee Bakery · #2217",detail:"50 min past its window; rider Chinedu last updated 25 min ago.",done:false},{id:"i2",kind:"Licence expiring",who:"Rider Chinedu Eze",detail:"Driving licence expires 14 Nov. He'll be blocked from offers after that date.",done:false}],
+}}
+let S=fresh(),role="owner",tabs={super:"overview",ops:"dispatch",owner:"new"},riderView=1,timer=null;
+const O=()=>S.live&&S.orders[1042];
+const prod=id=>S.products.find(p=>p.id===id);
+const avail=p=>p.on-p.res;
+const R=id=>S.riders.find(r=>r.id===id);
+const V=id=>S.vehicles[id];
+const curRider=()=>S.route&&R(S.swap&&S.swap.done?S.swap.to:S.route.rider);
+const pill=(s,c)=>`<span class="pill ${c||""}">${esc(s)}</span>`;
+const sp=s=>pill(s,s==="Delivered"?"p-ok":s==="Out for delivery"?"p-dark":["Awaiting address","Awaiting payment","Payment check","Rider at shop"].includes(s)?"p-warn":["Payment rejected","Failed pickup","Claim open"].includes(s)?"p-bad":"p-info");
+const wcharge=m=>m<=10?0:Math.ceil((m-10)/5)*200;
+let tT;function toast(m){clearTimeout(tT);let t=$(".toast");if(!t){t=document.createElement("div");t.className="toast";t.setAttribute("role","status");document.body.appendChild(t)}t.textContent=m;tT=setTimeout(()=>t.remove(),3000)}
+
+// ---------- guide ----------
+function guide(){
+  const o=O(),rt=S.route,st=rt&&rt.stops[1];let n,m,t,tab;
+  if(!o){n=1;m="As <b>Business owner</b>, create order #1042: items from stock, a delivery slot, and let the customer choose the address.";t="owner";tab="new"}
+  else if(o.status==="Awaiting address"){n=2;m="In the <b>Customer app</b>, sign in and choose where to deliver.";t="cust"}
+  else if(o.status==="Received"){n=3;m="As <b>Business owner</b> (Orders), pack #1042, then tick it <b>and</b> #1043 and request dispatch for both.";t="owner";tab="orders"}
+  else if(["Awaiting payment","Payment rejected"].includes(o.status)){n=4;m="Pay the total for both orders with one transfer and <b>upload one receipt</b>.";t="owner";tab="orders"}
+  else if(o.status==="Payment check"){n=5;m="As <b>Super admin</b> → Payments, check the receipt and confirm. Target: within 15 minutes.";t="super";tab="payments"}
+  else if(o.status==="Ready for pickup"&&!rt){n=6;m="In <b>Operations</b> → Dispatch, accept the suggested 3-order route and assign a bike rider.";t="ops";tab="dispatch"}
+  else if(rt&&!rt.accepted){n=7;m="In the <b>Rider app</b>, accept the route.";t="rider"}
+  else if(o.status==="Rider assigned"){n=8;m="In the <b>Rider app</b>, tap <b>Arrived at shop</b> at Adunni Boutique.";t="rider"}
+  else if(o.status==="Rider at shop"){n=9;m="Rider is waiting. Try <b>skip 5 min</b> to see the ₦200 waiting charge, then the owner reads the <b>pickup code</b> and the rider photographs the bags and enters it.";t="owner";tab="orders"}
+  else if(o.status==="Failed pickup"){n=9;m="Failed pickup recorded against the business. Press <b>Restart demo</b> to run the main path.";t="ops";tab="trips"}
+  else if(o.status==="Out for delivery"&&S.swap&&!S.swap.done){n=10;m="Rider change in progress: in the <b>Rider app</b>, switch to Musa's phone and type Sunday's <b>handover code</b>.";t="rider"}
+  else if(o.status==="Out for delivery"&&o.t<1){n=10;m="Watch the <b>Customer app</b>: live map and a traffic notice. Optional: in <b>Operations</b> → Trips, swap the rider to see the handover.";t="cust"}
+  else if(o.status==="Out for delivery"){n=11;m="At the door: rider photographs the handover and types the <b>delivery code</b> from the <b>Customer app</b>.";t="rider"}
+  else if(o.status==="Delivered"&&!o.rating&&!o.problem){n=12;m="In the <b>Customer app</b>, rate, or report the tote as damaged to open a <b>claim</b>.";t="cust"}
+  else if(S.claim&&!S.claim.decision){n=12;m="In <b>Operations</b> → Disputes &amp; claims, compare the pickup and door photos and decide who caused it.";t="ops";tab="disputes"}
+  else{n=13;m="Done. Super admin sees revenue and riders; the owner sees the claim outcome, waiting charge and performance.";t="super";tab="overview"}
+  $("#gstep").textContent=`Live order · step ${n} of 13`;$("#gmsg").innerHTML=m;return {t,tab};
+}
+function render(){const g=guide();
+  $("#roles").innerHTML=ROLES.map(([k,l])=>`<button aria-pressed="${role===k}" data-role="${k}">${l}${k===g.t&&k!==role?'<span class="dot"></span>':""}</button>`).join("");
+  $("#main").innerHTML={super:vSuper,ops:vOps,owner:vOwner,rider:vRider,cust:vCust}[role](g);bind()}
+function subtabs(r,list,g){return `<div class="subtabs">${list.map(([k,l])=>`<button aria-pressed="${tabs[r]===k}" data-tab="${r}:${k}">${l}${g&&g.t===r&&g.tab===k&&tabs[r]!==k?'<span class="dot"></span>':""}</button>`).join("")}</div>`}
+
+// ---------- map ----------
+const ROUTE=[[70,186],[110,180],[150,172],[190,160],[230,130]];const P1=[40,200],DROP2=[300,150];
+function along(t){const seg=ROUTE.slice(1).map((p,i)=>Math.hypot(p[0]-ROUTE[i][0],p[1]-ROUTE[i][1]));let d=t*seg.reduce((a,b)=>a+b,0);for(let i=0;i<seg.length;i++){if(d<=seg[i]){const f=d/seg[i];return [ROUTE[i][0]+(ROUTE[i+1][0]-ROUTE[i][0])*f,ROUTE[i][1]+(ROUTE[i+1][1]-ROUTE[i][1])*f]}d-=seg[i]}return ROUTE[ROUTE.length-1]}
+function map(){
+  const o=O();const live=o&&o.status==="Out for delivery";const t=!o?0:live?o.t:o.status==="Delivered"?1:0;const moving=S.route&&S.route.accepted;
+  const [x,y]=moving?(o.status==="Rider assigned"?P1:along(t)):P1;const done=ROUTE.filter((p,i)=>i/(ROUTE.length-1)<=t).concat([[x,y]]);const area=o&&o.address?o.address.area:"Ikate";
+  const pin=(p,n,c,op)=>`<g transform="translate(${p})"><path d="M0,-16 C9,-16 12,-9 12,-4 C12,4 0,12 0,12 C0,12 -12,4 -12,-4 C-12,-9 -9,-16 0,-16 Z" fill="${c}" ${op?`opacity="${op}"`:""}/><text y="-2" text-anchor="middle" font-size="9" font-weight="800" fill="#fff" font-family="var(--f-ui)">${n}</text></g>`;
+  const T=(x,y,s,w)=>`<text x="${x}" y="${y}" font-size="9" ${w?'font-weight="700" fill="var(--ink)"':'fill="var(--muted)"'} font-family="var(--f-ui)">${s}</text>`;
+  return `<div class="map"><svg viewBox="0 0 340 240" role="img" aria-label="Route map: pickups at Kemi's Kitchen and Adunni Boutique, drops in ${esc(area)} and Chevron">
+   <rect width="340" height="240" fill="var(--land)"/><path d="M0,0 L340,0 L340,40 C260,60 200,44 140,62 C90,76 40,70 0,84 Z" fill="var(--water)"/>${T(110,30,"Lagos Lagoon")}
+   <path d="M0,206 C80,192 160,178 340,150" stroke="var(--road-edge)" stroke-width="12" fill="none"/><path d="M0,206 C80,192 160,178 340,150" stroke="${S.cong&&live?"var(--bad)":"var(--road)"}" stroke-width="9" fill="none" ${S.cong&&live?'opacity=".45"':""}/>${T(118,214,"Lekki–Epe Expressway")}
+   <path d="M150,240 L190,120 L230,60" stroke="var(--road-edge)" stroke-width="8" fill="none"/><path d="M150,240 L190,120 L230,60" stroke="var(--road)" stroke-width="5" fill="none"/>
+   <polyline points="${[P1].concat(ROUTE).map(p=>p.join(",")).join(" ")} ${DROP2.join(",")}" fill="none" stroke="var(--cust)" stroke-width="3.5" stroke-dasharray="2 6" stroke-linecap="round"/>
+   ${moving&&o.status!=="Rider assigned"?`<polyline points="${done.map(p=>p.join(",")).join(" ")}" fill="none" stroke="var(--cust)" stroke-width="4" stroke-linecap="round"/>`:""}
+   <g transform="translate(${P1})"><circle r="8" fill="var(--own)"/><text y="3.5" text-anchor="middle" font-size="9" font-weight="800" fill="#fff" font-family="var(--f-ui)">1</text></g>${T(14,226,"Kemi's Kitchen",1)}
+   <g transform="translate(70,186)"><circle r="8" fill="var(--own)"/><text y="3.5" text-anchor="middle" font-size="9" font-weight="800" fill="#fff" font-family="var(--f-ui)">2</text></g>${T(60,172,"Adunni",1)}
+   ${pin([230,130],3,"var(--bad)")}${T(196,102,"Ngozi · "+esc(area),1)}${pin(DROP2,4,"var(--bad)",.75)}${T(282,178,"Chevron",1)}
+   ${moving?`<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><circle r="15" fill="var(--rider)" opacity=".18"/><circle r="11" fill="var(--rider)" stroke="#fff" stroke-width="2.5"/><path d="M-6,3 a3,3 0 1,0 0.1,0 M6,3 a3,3 0 1,0 0.1,0 M-6,3 L-1,-4 L4,-4 L6,3 M-1,-4 L-3,-6" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>`:""}
+  </svg>${live?`<span class="upd">● updated ${t>=1?"just now":Math.max(1,Math.round((1-t)*30))+"s ago"}</span><span class="sim">SIMULATED</span>`:""}</div>`;
+}
+const eta=o=>o.t>=1?"Now":(S.cong?"4:50pm":"4:20pm");
+
+// ---------- Super admin ----------
+function vSuper(g){
+  const body={overview:sOver,payments:sPay,businesses:sBiz,fees:sFees,staff:sStaff}[tabs.super]();
+  return `<h1>Ọ̀nà · management</h1><p class="sub">Revenue, payment confirmation, businesses, fees and staff. Sees riders and issues, never goods value.</p>${subtabs("super",[["overview","Overview"],["payments","Payments"],["businesses","Businesses"],["fees","Fees & slots"],["staff","Staff"]],g)}${body}`;
+}
+function totals(){const s=JSON.parse(JSON.stringify(S.stats));const rq=S.request;if(rq&&rq.ok)s[1].fees+=rq.total+(rq.waiting||0);const o=O();if(o&&o.status==="Delivered"){s[1].del++;s[1].ok++}return s}
+function sOver(){const s=totals();const k=Object.keys(s);const sum=f=>k.reduce((a,i)=>a+s[i][f],0);const mx=Math.max(...k.map(i=>s[i].fees));const wait=S.request&&S.request.status==="check";
+  return `<div class="tiles"><div class="tile"><div class="k">Businesses</div><div class="v">4</div></div><div class="tile"><div class="k">Customers</div><div class="v">${sum("cust")}</div></div><div class="tile"><div class="k">Riders available</div><div class="v">${S.riders.filter(r=>r.status==="Available").length}/${S.riders.length}</div></div><div class="tile"><div class="k">Deliveries · 30 days</div><div class="v">${sum("del")}</div><div class="h">${Math.round(100*sum("ok")/sum("del"))}% successful</div></div><div class="tile"><div class="k">Revenue · 30 days</div><div class="v">${naira(sum("fees"))}</div><div class="h">delivery fees + waiting charges</div></div><div class="tile ${wait?"alert":""}"><div class="k">Receipts waiting</div><div class="v">${wait?1:0}</div><div class="h">target 15 min</div></div></div>
+  <div class="grid2"><div class="card"><h2>Issues</h2>${S.issues.map(i=>`<div class="issue"><div class="ic bad">!</div><div><div class="t">${esc(i.kind)} · ${esc(i.who)}</div><div class="s">${esc(i.detail)}</div></div><div>${i.done?pill("Prompted","p-warn"):`<button class="b warn" data-act="prompt" data-i="${i.id}">Prompt</button>`}</div></div>`).join("")}
+   ${S.claim&&S.claim.decision?`<div class="issue"><div class="ic warn">·</div><div><div class="t">Claim decided · #1042</div><div class="s">${esc(S.claim.decisionText)}</div></div><div>${pill("Closed","p-ok")}</div></div>`:""}</div>
+  <div class="card"><h2>Revenue by business · 30 days</h2>${k.map(i=>`<div class="bars"><div class="r"><span>${BIZ[i]}</span><div class="t" style="width:${100*s[i].fees/mx}%"></div><span class="v">${naira(s[i].fees)}</span></div></div>`).join("")}</div></div>`}
+function sPay(){const rq=S.request;
+  if(!rq||rq.status!=="check")return `<div class="notice">No receipts waiting. Target: confirm within 15 minutes, 8am–8pm Mon–Sat, 12–6 Sun.</div>${payHistory()}`;
+  return `<div class="card" style="max-width:860px"><h2>Receipt to check · waiting ${rq.waited} min ${rq.waited>=15?pill("Over target","p-bad"):pill("Within 15 min","p-ok")}</h2><div class="grid2e"><div>
+   ${rq.receipt?`<img src="${rq.receipt}" alt="Receipt uploaded by Adunni Boutique" style="max-width:100%;border:1px solid var(--line);border-radius:8px">`:`<div style="height:240px;border:1px dashed var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--sunk);gap:4px"><b>Transfer receipt</b><span class="small muted">sample</span><span class="mono small">${naira(rq.total)} · ${esc(rq.ref)}</span></div>`}</div>
+   <div><table><tbody><tr><td class="muted">Business</td><td>Adunni Boutique</td></tr><tr><td class="muted">Orders</td><td>${rq.ids.map(i=>"#"+i).join(", ")}</td></tr>${rq.ids.map(i=>`<tr><td class="muted">#${i}</td><td>${S.orders[i].veh} · ${S.orders[i].band} · ${naira(S.orders[i].fee)}</td></tr>`).join("")}<tr><td class="muted">Total due</td><td><b>${naira(rq.total)}</b></td></tr><tr><td class="muted">Reference</td><td class="mono">${esc(rq.ref)}</td></tr><tr><td class="muted">Attempt</td><td>${rq.tries} of 3</td></tr></tbody></table>
+   <p class="small">Check the bank app for ${naira(rq.total)} with this reference. The image alone isn't proof.</p>
+   <button class="b go full" data-act="confirmpay">Money received · release ${rq.ids.length} orders</button>
+   <div class="row" style="margin-top:8px"><select id="rj" class="sel"><option>Amount doesn't match</option><option>No transfer found with this reference</option><option>Receipt unreadable</option></select><button class="b warn" data-act="rejectpay">Reject</button></div>
+   <button class="demo" style="margin-top:8px" data-act="waitrq">skip 10 min (demo)</button></div></div></div>${payHistory()}`}
+function payHistory(){return `<div class="card scroll" style="padding:0;margin-top:12px"><table><thead><tr><th>When</th><th>Business</th><th>Orders</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>
+  ${S.request&&S.request.ok?`<tr><td>${esc(S.request.okAt)}</td><td>Adunni Boutique</td><td class="mono">#1042, #1043</td><td class="num">${naira(S.request.total)}</td><td>${pill("Confirmed in "+S.request.waited+" min","p-ok")}</td></tr>`:""}
+  <tr><td>14:12</td><td>Kemi's Kitchen</td><td class="mono">#3051</td><td class="num">₦2,500</td><td>${pill("Confirmed in 6 min","p-ok")}</td></tr><tr><td>13:55</td><td>Mama Tee Bakery</td><td class="mono">#2230, #2231, #2232</td><td class="num">₦27,000</td><td>${pill("Confirmed in 11 min","p-ok")}</td></tr></tbody></table></div>`}
+function sBiz(){const s=totals();return `<div class="card scroll" style="padding:0"><table><thead><tr><th>Business</th><th class="num">Deliveries</th><th class="num">Success</th><th class="num">Fees paid</th><th class="num">Customers</th><th class="num">Complaints</th><th class="num">Packing issues</th></tr></thead><tbody>
+  ${Object.keys(s).map(i=>`<tr><td><b>${BIZ[i]}</b></td><td class="num">${s[i].del}</td><td class="num">${Math.round(100*s[i].ok/s[i].del)}%</td><td class="num">${naira(s[i].fees)}</td><td class="num">${s[i].cust}</td><td class="num">${s[i].comp}</td><td class="num">${i==1&&S.claim&&S.claim.decision==="store"?1:0}</td></tr>`).join("")}</tbody></table></div>
+  <div class="card" style="margin-top:12px;max-width:640px"><h2>Add a business</h2><div class="fgrid"><label class="f" for="bn">Business name<input id="bn" placeholder="e.g. Zara's Fabrics"></label><label class="f" for="be">Owner's email<input id="be" placeholder="owner@example.com"></label></div><div style="margin-top:8px"><button class="b pri" data-act="addbiz">Create and email the owner</button></div></div>`}
+function sFees(){return `<div class="grid2"><div class="card scroll" style="padding:0"><table><thead><tr><th>Vehicle</th>${BANDS.map(b=>`<th class="num">${b}</th>`).join("")}</tr></thead><tbody>${VT.map(v=>`<tr><td><b>${v}</b></td>${FEES[v].map(f=>`<td class="num">${naira(f)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+  <div class="card"><h2>Other settings</h2><table><tbody><tr><td>Waiting charge</td><td>₦200 per started 5 min after 10 free</td></tr><tr><td>Delivery slots</td><td>8–10, 10–12, 12–2, 2–4, 4–6, 6–8 Mon–Sat; 12–6 Sun</td></tr><tr><td>Slot capacity</td><td>15 orders per zone</td></tr><tr><td>Payment cut-off</td><td>1 hour before the slot</td></tr><tr><td>Receipt target</td><td>15 min; escalate at 30</td></tr><tr><td>Claim limit</td><td>₦100,000 per order; 48 h (24 h missing items)</td></tr><tr><td>Cancellation after payment</td><td>Credit on the next payment</td></tr></tbody></table></div></div>`}
+function sStaff(){return `<div class="card scroll" style="padding:0;max-width:640px"><table><thead><tr><th>Name</th><th>Role</th><th>Created by</th></tr></thead><tbody>${S.staff.map(x=>`<tr><td>${esc(x[0])}</td><td>${esc(x[1])}</td><td>${x[1]==="Operations"?"Super admin":"Operations"}</td></tr>`).join("")}</tbody></table></div>
+  <div class="card" style="margin-top:12px;max-width:640px"><h2>Add Operations staff</h2><div class="fgrid"><label class="f" for="sn">Name<input id="sn" placeholder="Full name"></label><label class="f" for="se">Email<input id="se" placeholder="name@deliversme.ng"></label></div><div style="margin-top:8px"><button class="b pri" data-act="addops">Create Operations account</button></div><p class="small muted">Operations then creates riders, vehicles and dispatch staff.</p></div>`}
+
+// ---------- Operations ----------
+function vOps(g){const body={dispatch:opDispatch,trips:opTrips,disputes:opDisputes,fleet:opFleet}[tabs.ops]();
+  return `<h1>Operations</h1><p class="sub">Dispatch desk and support. Assigns riders, watches trips, handles waiting, failed pickups, rider changes, locked codes and claims. Manages riders and vehicles. No revenue totals; goods value only on a claim.</p>${subtabs("ops",[["dispatch","Dispatch"],["trips","Live trips"],["disputes","Disputes & claims"],["fleet","Riders & vehicles"]],g)}${body}`}
+function opDispatch(){
+  const o=O();const ready=Object.values(S.orders).filter(x=>x.status==="Ready for pickup"&&!(S.route&&S.route.ids.includes(x.id)));
+  const sugg=!S.route&&ready.some(x=>x.id===1042)&&ready.some(x=>x.id===3051);
+  let assign="";
+  if(S.route&&!S.route.rider)assign=`<div class="card" style="margin-top:12px"><h2>Assign route · 3 orders · 3 bags · needs a Bike</h2><table><thead><tr><th>Rider</th><th>Vehicle</th><th class="num">On time</th><th>Papers</th><th></th></tr></thead><tbody>
+   ${S.riders.filter(r=>r.status==="Available"&&V(r.veh).cap>=3).map(r=>`<tr><td><b>${esc(r.name)}</b></td><td><span class="veh">${V(r.veh).type} · ${V(r.veh).plate}</span></td><td class="num">${r.ontime}%</td><td class="small">${esc(r.docs)}</td><td><button class="b pri" data-act="assign" data-r="${r.id}">Assign</button></td></tr>`).join("")}</tbody></table>
+   <p class="small muted">Only available riders whose vehicle fits, not paused, with valid papers. Chinedu (licence expiring, on a trip) isn't offered.</p></div>`;
+  else if(S.route)assign=`<div class="card" style="margin-top:12px"><h2>Route · ${esc(R(S.route.rider).name)} ${S.route.accepted?pill("Accepted","p-ok"):pill("Offered","p-warn")}</h2>${stops()}</div>`;
+  return `<div class="grid2"><div>
+   ${sugg?`<div class="sugg"><h3>Suggested: one bike route for #3051, #1042 and #1043</h3><div class="small">Pickups 0.6 km apart on Admiralty Way · drops east along the Lekki–Epe Expressway · 3 bags fits one bike · all 4–6pm windows met · peak traffic expected after 4pm.</div>
+    <ol class="stops"><li><span class="n pk">1</span><span>Pick up · Kemi's Kitchen (#3051)</span><span class="small muted">Lekki Ph 1</span></li><li><span class="n pk">2</span><span>Pick up · Adunni Boutique (#1042, #1043) · one code</span><span class="small muted">Lekki Ph 1</span></li><li><span class="n dr">3</span><span>Drop · Ngozi O. (#1042)</span><span class="small muted">${esc(o.address.area)}</span></li><li><span class="n dr">4</span><span>Drop · Bisi A. (#1043), Tunde A. (#3051)</span><span class="small muted">Chevron</span></li></ol>
+    <div class="row" style="margin-top:10px"><button class="b go" data-act="batch">Accept suggestion</button><button class="b" data-act="nobatch">Keep separate</button></div></div>`:""}
+   ${assign}
+   <div class="card scroll" style="padding:0;margin-top:12px"><table><thead><tr><th>#</th><th>Business</th><th>Drop</th><th>Slot</th><th>Vehicle</th><th class="num">Bags</th><th>Payment</th></tr></thead><tbody>
+   ${Object.values(S.orders).map(x=>`<tr><td class="mono">${x.id}</td><td>${BIZ[x.biz]}</td><td>${esc(x.area||(x.address&&x.address.area)||"–")}</td><td>${x.slot}</td><td><span class="veh">${x.veh}</span></td><td class="num">${x.bags||"–"}</td><td>${x.paid?pill("Confirmed","p-ok"):pill("Not yet","")}</td></tr>`).join("")}
+   </tbody></table></div><p class="small muted">Orders can be assigned only once payment is confirmed.</p></div>
+  <div class="card"><h2>Live map</h2>${map()}</div></div>`;
+}
+function stops(){const rt=S.route,o=O();const st=rt.stops;const pk=["Out for delivery","Delivered"].includes(o.status);
+  return `<ol class="stops"><li><span class="n pk">1</span><span>Kemi's Kitchen · #3051</span>${pill(rt.accepted?"Picked up":"–",rt.accepted?"p-ok":"")}</li><li><span class="n pk">2</span><span>Adunni Boutique · #1042, #1043</span>${pill(pk?"Picked up":o.status==="Rider at shop"?"Waiting "+st[1].wait+" min":o.status==="Failed pickup"?"Failed":"–",pk?"p-ok":o.status==="Failed pickup"?"p-bad":o.status==="Rider at shop"?"p-warn":"")}</li><li><span class="n dr">3</span><span>Ngozi O. · #1042</span>${pill(o.status==="Delivered"?"Delivered":pk?"Next":"–",o.status==="Delivered"?"p-ok":"")}</li><li><span class="n dr">4</span><span>Chevron · #1043, #3051</span>${pill(o.status==="Delivered"?"Next":"–")}</li></ol>`}
+function opTrips(){const o=O(),rt=S.route;
+  if(!rt||!rt.accepted)return `<div class="notice">No active trips for this demo order yet.</div>`;
+  const r=curRider(),v=V(r.veh);let cards="";
+  if(o.status==="Rider at shop"){const w=rt.stops[1].wait;cards=`<div class="notice ${w>=20?"bad":w>10?"warn":""}"><b>${esc(r.short)} waiting at Adunni Boutique: ${w} min.</b> ${w<=10?"Inside the 10 free minutes.":`Waiting charge so far: <b>${naira(wcharge(w))}</b> (added to the business's next payment).`} ${w>=20?"Failed pickup now allowed.":""}</div>`}
+  if(o.status==="Failed pickup")cards=`<div class="notice bad"><b>Failed pickup at Adunni Boutique:</b> ${esc(o.failReason)}. Cause: business. Fee kept; #1042 and #1043 back to Packed. Rider continued to Chevron with #3051.</div>`;
+  if(o.status==="Out for delivery"){cards=`${S.cong?`<div class="notice warn"><b>Traffic on the Lekki–Epe Expressway.</b> ETA moved to 4:50pm, still inside 4–6pm. Customer and business notified automatically.</div>`:""}
+   ${S.swap&&!S.swap.done?`<div class="notice warn"><b>Rider change:</b> Musa is heading to Sunday. Waiting for the handover code.</div>`:""}
+   ${S.swap&&S.swap.done?`<div class="notice">Rider changed to <b>Musa Bello</b> at ${esc(S.swap.at)} (reason: ${esc(S.swap.reason)}). Business and customer told; delivery code unchanged.</div>`:""}
+   ${!S.swap?`<div class="row" style="margin-top:8px"><select id="swr" class="sel"><option>Bike breakdown</option><option>Accident</option><option>Rider unwell</option></select><button class="b warn" data-act="swap">Swap rider · send Musa</button></div>`:""}`}
+  return `<div class="grid2"><div class="card"><h2>${esc(r.name)} · <span class="veh">${v.type} · ${v.plate}</span></h2>${stops()}<div style="margin-top:10px">${cards}</div></div><div class="card"><h2>Live map</h2>${map()}</div></div>`}
+function opDisputes(){const o=O();const c=S.claim;
+  let out=`<div class="card" style="max-width:860px"><h2>Locked delivery codes</h2>${S.locked?`<div class="notice bad"><b>#1042 locked</b> after 5 wrong codes. Call Ngozi on <span class="mono">${esc(o.phone)}</span> to confirm she has the parcel.</div>
+    <label class="f" for="ovr" style="margin-top:8px">Reason<input id="ovr" value="Customer's screen cracked; confirmed receipt by phone"></label><button class="b pri" style="margin-top:8px" data-act="override">Record delivered (override, logged)</button>`:`<p class="muted small">None. If a rider fails the delivery code 5 times, it appears here.</p>`}</div>`;
+  out+=`<div class="card" style="max-width:860px;margin-top:12px"><h2>Claims</h2>`;
+  if(!c)out+=`<p class="muted small">No claims. Damage reports from customers open a claim here; missing-item reports within 24 h and other claims within 48 h of delivery.</p>`;
+  else{out+=`<p><b>#1042 · ${esc(c.item)}</b> · reported ${esc(c.at)} by Ngozi O. · ${pill(c.decision?"Decided":"Open",c.decision?"p-ok":"p-bad")}</p><p class="small">“${esc(c.text)}”</p>
+    <div class="row"><div><div class="small muted">Pickup photo · ${esc(o.pickupAt)}</div><div class="photo"><b>👜</b>bags intact</div></div><div><div class="small muted">Door photo · ${esc(o.deliveredAt)}</div><div class="photo"><b>👜</b>handle torn?</div></div></div>
+    <p class="small">Claimed value: <b>${naira(12000)}</b> (business's price for the tote, visible here only because of the claim). Limit ₦100,000.</p>
+    ${c.decision?`<div class="notice">${esc(c.decisionText)}</div>`:`<div class="row"><button class="b go" data-act="claim" data-d="rider">Rider caused · refund ${naira(12000)}</button><button class="b" data-act="claim" data-d="store">Store caused · send to business</button></div>`}`}
+  out+=`</div>`;
+  if(o&&o.problem&&!o.problem.toBiz&&!c)out+=`<div class="card" style="max-width:860px;margin-top:12px"><h2>Delivery complaint</h2><p><b>${esc(o.problem.type)}</b> · “${esc(o.problem.text)}”</p></div>`;
+  return out}
+function opFleet(){return `<div class="card scroll" style="padding:0"><table><thead><tr><th>Rider</th><th>Vehicle</th><th>Status</th><th class="num">Deliveries</th><th class="num">On time</th><th class="num">Rating</th><th>Papers</th><th class="num">Pay this week</th><th></th></tr></thead><tbody>
+  ${S.riders.map(r=>`<tr><td><b>${esc(r.name)}</b><div class="small mono muted">${esc(r.phone)}</div></td><td><span class="veh">${V(r.veh).type} · ${V(r.veh).plate}</span></td><td>${pill(r.status,r.status==="Available"?"p-ok":r.status==="Paused"?"p-bad":"p-info")}</td><td class="num">${r.del}</td><td class="num">${r.ontime}%</td><td class="num">★ ${r.rating}</td><td class="small ${/expires/.test(r.docs)?"hint":""}">${esc(r.docs)}</td><td class="num">${naira(r.pay)}</td><td><button class="b" data-act="pause" data-r="${r.id}">${r.status==="Paused"?"Unpause":"Pause"}</button></td></tr>`).join("")}</tbody></table></div>
+  <p class="small muted">Rider pay is shown to Operations and the super admin only. Riders don't see an earnings screen.</p>
+  <div class="grid2e" style="margin-top:12px"><div class="card"><h2>Add a rider</h2><div class="fgrid"><label class="f" for="rn">Name<input id="rn"></label><label class="f" for="rp">Phone<input id="rp"></label><label class="f" for="rl">Licence expiry<input id="rl" type="month" value="2027-06"></label></div><div style="margin-top:8px"><button class="b pri" data-act="addrider">Create rider (temporary password)</button></div></div>
+  <div class="card"><h2>Add dispatch staff</h2><div class="fgrid"><label class="f" for="dn">Name<input id="dn"></label><label class="f" for="de">Email<input id="de"></label></div><div style="margin-top:8px"><button class="b pri" data-act="adddisp">Create dispatch account</button></div></div></div>`}
+
+// ---------- Business owner ----------
+function vOwner(g){const body={orders:oOrders,new:oNew,stock:oStock,payments:oPay,performance:oPerf,feedback:oFeed}[tabs.owner]();
+  return `<h1>Adunni Boutique</h1><p class="sub">Packs and hands over; Ọ̀nà supplies rider, vehicle and route. Sees its own money and stock only.</p>${subtabs("owner",[["orders","Orders"],["new","New order"],["stock","Stock"],["payments","Payments"],["performance","Performance"],["feedback","Feedback"]],g)}${body}`}
+function oNew(){if(S.live)return `<div class="notice">Order #1042 created. Continue under <b>Orders</b>.</div>`;
+  const opts=sel=>S.products.map(p=>`<option value="${p.id}" ${p.id===sel?"selected":""}>${esc(p.name)} · ${avail(p)} available</option>`).join("");
+  return `<div class="grid2"><div class="card"><h2>Items from your stock</h2><div class="line"><label class="f" for="np">Item<select id="np">${opts(1)}</select></label><label class="f" for="nq">Qty<input id="nq" type="number" min="1" value="1"></label><span class="small muted" id="na"></span></div>
+   <h2 style="margin-top:12px">Customer</h2><div class="fgrid"><label class="f" for="nem">Email<input id="nem" value="ngozi@example.com"></label><label class="f" for="nnm">Name<input id="nnm" value="Ngozi O."></label><label class="f" for="nph">Phone<input id="nph" value="0703 112 4471"></label></div><div class="hint" id="nhint"></div>
+   <label class="chk" style="margin-top:8px"><input type="radio" name="nar" value="cust" checked> Ask the customer to choose the address</label>
+   <h2 style="margin-top:12px">Delivery slot · today</h2><div class="slots">${SLOTS.map(([s,l,c])=>`<button class="slot" data-act="slot" data-s="${s}" aria-pressed="${s==="4–6pm"}" ${c?"":"disabled"}>${s}<small>${l}</small></button>`).join("")}</div>
+   <p class="small muted">Paid at least 1 hour before the slot starts; 15 orders per zone per slot.</p></div>
+  <div class="card"><h2>Delivery by Ọ̀nà</h2><label class="f" for="nveh">Vehicle (suggested from item size)<select id="nveh">${VT.map(v=>`<option>${v}</option>`).join("")}</select></label>
+   <p class="small" style="margin:8px 0 0">Distance is worked out from the pickup and drop-off pins once the customer chooses the address. Lekki Phase 1 → Ikate is about 4.2 km.</p>
+   <div class="tile" style="margin-top:8px"><div class="k">Estimated fee</div><div class="v" id="nfee"></div><div class="h">paid by transfer when you request dispatch</div></div>
+   <button class="b pri full" style="margin-top:10px" data-act="create">Send order to customer</button></div></div>`}
+function oOrders(){const o=O();if(!o)return `<div class="notice">Create #1042 under <b>New order</b>.</div>`;
+  const rq=S.request,list=[o,S.orders[1043]];let panel="";
+  if(o.status==="Awaiting address")panel=`<div class="notice">Waiting for Ngozi to choose the address. Stock reserved.</div>`;
+  if(o.status==="Received")panel=`<div class="card"><h2>Pack #1042</h2>${o.lines.map(l=>`<label class="chk"><input type="checkbox" checked> ${esc(prod(l.pid).name)} ×${l.qty}</label>`).join("")}<div class="line" style="margin-top:6px"><label class="f" for="bags">Bags<input id="bags" type="number" min="1" value="1"></label><span></span><span></span></div><button class="b pri" data-act="pack">Mark packed</button></div>`;
+  if(o.status==="Packed"&&!rq)panel=`<div class="card"><h2>Request dispatch</h2><p class="small">Tick the packed orders to send together. One transfer, one receipt.</p>${list.map(x=>`<label class="chk"><input type="checkbox" class="rqs" value="${x.id}" checked> #${x.id} · ${esc(x.name)} · <span class="veh">${x.veh}</span> · ${x.band} · ${naira(x.fee)}</label>`).join("")}<button class="b pri" style="margin-top:8px" data-act="request">Request dispatch for selected</button></div>`;
+  if(rq&&["Awaiting payment","Payment rejected"].includes(o.status))panel=`<div class="card">${o.status==="Payment rejected"?`<div class="banner"><span class="pill p-bad">Rejected</span><div class="msg"><b>${esc(rq.reason)}.</b> ${3-rq.tries} tries left.</div></div>`:""}
+   <h2>Pay ${naira(rq.total)} for ${rq.ids.map(i=>"#"+i).join(" + ")}</h2><div class="card" style="background:var(--sunk)"><div class="small">Transfer to</div><b>Ọ̀nà Ltd · Zenith Bank · 1012345678</b><div class="small">Reference <span class="mono"><b>DSM-${rq.ids.join("-")}</b></span></div>${rq.credit?`<div class="small">Includes credit: −${naira(rq.credit)}</div>`:""}</div>
+   <div class="fgrid" style="margin-top:8px"><label class="f" for="pref">Transfer reference<input id="pref" value="${o.status==="Payment rejected"?"FT2611ADB73":"FT2611ADB72"}"></label><label class="f" for="rcpt">Receipt (photo or PDF)<input id="rcpt" type="file" accept="image/*,application/pdf"></label></div>
+   <button class="b pri" style="margin-top:8px" data-act="upload">Upload receipt</button><p class="small muted">Must be paid by 3:00pm for the 4–6pm slot. The clock pauses while Ọ̀nà checks.</p></div>`;
+  if(o.status==="Payment check")panel=`<div class="notice">Receipt sent ${esc(rq.at)}. Ọ̀nà usually confirms within 15 minutes.</div>`;
+  if(o.status==="Ready for pickup")panel=`<div class="notice">Payment confirmed. Ọ̀nà is assigning a rider.</div>`;
+  if(o.status==="Rider assigned"){const r=curRider();panel=`<div class="notice">${esc(r.name)} · <span class="veh">${V(r.veh).type} · ${V(r.veh).plate}</span> is on the way to you (after Kemi's Kitchen).</div>`}
+  if(o.status==="Rider at shop"){const r=curRider(),w=S.route.stops[1].wait;panel=`<div class="card"><div class="ridercard"><div class="avatar">${esc(r.short[0])}</div><div><b>${esc(r.name)} is at your door</b><div class="small"><span class="veh">${V(r.veh).type} · ${V(r.veh).plate}</span></div><div class="small muted">Check the person and plate</div></div><div style="text-align:right"><div class="timer">${w} min</div><div class="small ${w>10?"hint":"muted"}">${w<=10?"free waiting":"charge "+naira(wcharge(w))}</div></div></div>
+   <p class="small" style="margin:10px 0 4px">Hand over <b>2 bags (#1042, #1043)</b>, then read out the pickup code:</p><div class="code">${o.pcode.split("").join(" ")}</div>
+   <div class="row" style="margin-top:8px">${S.route.stops[1].extra?pill("Extra 10 min used",""):`<button class="b" data-act="extra">Need 10 more minutes</button>`}<button class="demo" data-act="skip">skip 5 min (demo)</button></div></div>`}
+  if(o.status==="Failed pickup")panel=`<div class="notice bad"><b>Failed pickup:</b> ${esc(o.failReason)}. The fee for #1042 and #1043 is kept; request dispatch again when ready.</div>`;
+  if(o.status==="Out for delivery")panel=`<div class="notice">${S.cong?"Traffic on the Lekki–Epe Expressway: new ETA 4:50pm, still inside 4–6pm. ":""}${S.swap&&S.swap.done?`Rider changed to Musa Bello (${esc(S.swap.reason)}). `:""}Picked up ${esc(o.pickupAt)}.</div>${map()}`;
+  if(o.status==="Delivered")panel=`<div class="notice">Delivered ${esc(o.deliveredAt)}${o.override?" (confirmed by Ọ̀nà support)":""}.</div>`;
+  return `<div class="grid2"><div class="card scroll" style="padding:0"><table><thead><tr><th>#</th><th>Customer</th><th>Slot</th><th>Vehicle</th><th class="num">Fee</th><th>Status</th></tr></thead><tbody>${list.map(x=>`<tr><td class="mono">${x.id}</td><td>${esc(x.name)}</td><td>${x.slot}</td><td><span class="veh">${x.veh}</span></td><td class="num">${naira(x.fee)}</td><td>${sp(x.status)}</td></tr>`).join("")}</tbody></table></div><div>${panel}</div></div>`}
+function oStock(){return `<div class="grid2"><div class="card scroll" style="padding:0"><table><thead><tr><th>Item</th><th>Size</th><th class="num">On hand</th><th class="num">Reserved</th><th class="num">Available</th><th class="num">Price</th></tr></thead><tbody>${S.products.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${p.size}</td><td class="num">${p.on}</td><td class="num">${p.res}</td><td class="num">${avail(p)}</td><td class="num">${naira(p.price)}</td></tr>`).join("")}</tbody></table></div><div class="card"><h2>History</h2>${S.moves.slice().reverse().map(m=>`<div class="mv">${esc(m[0])} · ${esc(m[1])} · <b>${esc(m[2])}</b> · ${esc(m[3])}</div>`).join("")}</div></div>`}
+function oPay(){const rq=S.request;const w=S.route&&S.route.stops[1].wait;return `<div class="card scroll" style="padding:0;max-width:860px"><table><thead><tr><th>Item</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>
+  ${rq?`<tr><td>Delivery fees #1042 + #1043 (${esc(rq.ref||"not paid yet")})</td><td class="num">${naira(rq.total)}</td><td>${sp(rq.ok?"Confirmed":rq.status==="check"?"Payment check":"Awaiting payment")}</td></tr>`:""}
+  ${w>10?`<tr><td>Waiting charge · ${w} min at pickup</td><td class="num">${naira(wcharge(w))}</td><td>${pill("Added to your next payment","p-warn")}</td></tr>`:""}
+  ${S.claim&&S.claim.decision==="rider"?`<tr><td>Claim refund · damaged tote #1042</td><td class="num">−${naira(12000)}</td><td>${pill("Refund sent to you","p-ok")}</td></tr>`:""}
+  <tr><td>Delivery fee #1041</td><td class="num">₦1,500</td><td>${pill("Confirmed","p-ok")}</td></tr></tbody></table></div>`}
+function oPerf(){return `<div class="tiles"><div class="tile"><div class="k">On time</div><div class="v">91%</div><div class="h">traffic delays shown separately</div></div><div class="tile"><div class="k">Completion</div><div class="v">96%</div></div><div class="tile"><div class="k">Failed per 100</div><div class="v">4</div></div><div class="tile"><div class="k">Cost per delivery</div><div class="v">₦2,100</div></div><div class="tile"><div class="k">Waiting charges · 30 days</div><div class="v">₦600</div></div><div class="tile"><div class="k">Packing issues</div><div class="v">${S.claim&&S.claim.decision==="store"?1:0}</div></div></div>
+  <div class="grid2e"><div class="card"><h2>Late deliveries by reason</h2>${[["Traffic",4],["Customer unreachable",2],["Rider late to pickup",1]].map(([r,n])=>`<div class="kbar"><span>${r}</span><div class="t" style="width:${n*20}%"></div><span class="mono">${n}</span></div>`).join("")}</div><div class="card"><h2>Riders who delivered for you</h2><table><tbody><tr><td>Sunday Okon</td><td class="num">38 jobs</td><td class="num">95% on time</td></tr><tr><td>Musa Bello</td><td class="num">21 jobs</td><td class="num">86% on time</td></tr></tbody></table></div></div>`}
+function oFeed(){const o=O();const c=S.claim;if(!o||(!o.rating&&!o.problem))return `<p class="muted">No feedback yet.</p>`;
+  return `<div class="card" style="max-width:760px">${o.rating?`<p>#1042 rated ${"★".repeat(o.rating)}</p>`:""}${o.problem?`<p><b>${esc(o.problem.type)}</b> · “${esc(o.problem.text)}”</p>`:""}
+  ${c?(c.decision==="store"?`<div class="notice warn"><b>Ọ̀nà decided this was caused at packing</b> (see the pickup photo). Please sort it out with Ngozi: replacement, refund or exchange.</div><div class="photo"><b>👜</b>pickup photo</div>`:c.decision==="rider"?`<div class="notice">Ọ̀nà accepted responsibility and refunded you ${naira(12000)}. Please replace the tote for Ngozi.</div>`:`<div class="notice">Ọ̀nà is reviewing the photos to decide who caused the damage.</div>`):""}</div>`}
+
+// ---------- Rider ----------
+function vRider(){
+  const o=O(),rt=S.route;const showMusa=S.swap&&!S.swap.done&&riderView===2;const r=showMusa?R(2):(S.swap&&S.swap.done?R(2):R(1));const v=V(r.veh);let body;
+  const switcher=S.swap&&!S.swap.done?`<div class="row"><span class="small muted">Demo, whose phone:</span><button class="b" data-act="rv" data-v="1" ${riderView===1?"disabled":""}>Sunday</button><button class="b" data-act="rv" data-v="2" ${riderView===2?"disabled":""}>Musa</button></div>`:"";
+  if(!rt||!rt.rider)body=`<div class="notice">No route yet.</div><div class="small muted">${esc(r.name)} · <span class="veh">${v.type} · ${v.plate}</span></div>`;
+  else if(!rt.accepted)body=`<div style="font-size:18px;font-weight:800">New route · 3 orders</div>${stops()}<button class="b go full" data-act="accept">Accept route</button><button class="b full" data-act="declineroute">Decline</button>`;
+  else if(o.status==="Rider assigned")body=`<div style="font-size:18px;font-weight:800">Stop 2 · Adunni Boutique</div><div class="notice">Stop 1 done: Kemi's Kitchen, own pickup code.</div><div class="small">Admiralty Way, Lekki Phase 1</div><button class="b go full" data-act="arrive">Arrived at shop</button><p class="small muted" style="margin:0">Checked against your location (within ~150 m).</p>`;
+  else if(o.status==="Rider at shop"){const w=rt.stops[1].wait;body=`<div style="font-size:18px;font-weight:800">At Adunni Boutique</div><div class="row"><div class="timer">${w} min</div><span class="small ${w>10?"hint":"muted"}">${w<=10?"free waiting":"waiting charge "+naira(wcharge(w))+" (paid by the shop)"}</span></div>
+    <div class="card"><b>Collect 2 bags · #1042, #1043</b></div>
+    <div class="row"><button class="b" data-act="photo" data-k="pick">${o.pickPhoto?"Photo taken ✓":"Photograph the bags"}</button>${o.pickPhoto?`<span class="photo"><b>👜</b>${esc(o.pickPhotoAt)}</span>`:""}</div>
+    <label class="f" for="pcode">Pickup code from the shop<input id="pcode" inputmode="numeric" maxlength="4" class="mono" style="font-size:22px;letter-spacing:.3em;text-align:center" placeholder="····"></label><button class="b go full" data-act="pcode" ${o.pickPhoto?"":"disabled"}>Confirm pickup</button>
+    ${w>=(rt.stops[1].extra?30:20)?`<details><summary class="small" style="font-weight:700;cursor:pointer">Failed pickup</summary><select id="fp" class="sel" style="margin-top:6px"><option>Parcel not ready</option><option>Shop closed</option><option>Bags don't match the label</option><option>Owner unreachable</option></select><button class="b warn full" style="margin-top:6px" data-act="failpick">Record failed pickup</button></details>`:`<p class="small muted" style="margin:0">Failed pickup can be recorded after ${rt.stops[1].extra?30:20} minutes.</p>`}`}
+  else if(o.status==="Out for delivery"&&S.swap&&!S.swap.done){body=showMusa?`<div style="font-size:18px;font-weight:800">Handover from Sunday</div><div class="small">Meet Sunday on the Lekki–Epe Expressway. Receive the bags, photograph them, then type his handover code.</div><label class="f" for="hcode">Handover code<input id="hcode" maxlength="4" class="mono" style="font-size:22px;letter-spacing:.3em;text-align:center"></label><button class="b go full" data-act="handover">Confirm handover</button>`:
+    `<div style="font-size:18px;font-weight:800">Hand over to Musa</div><div class="notice warn">Operations is sending Musa Bello (Bike LAG 845 KJ). Give him the bags, then read him this code:</div><div class="code">${S.swap.code.split("").join(" ")}</div>`}
+  else if(o.status==="Out for delivery")body=`${map()}<div class="eta"><span>${o.t>=1?"<b>Arrived · stop 3</b>":`ETA <b>${eta(o)}</b>`}</span><span class="mono small">${esc(o.phone)}</span></div>
+    ${o.t>=1?`<div class="row"><button class="b" data-act="photo" data-k="door">${o.doorPhoto?"Photo taken ✓":"Photograph the handover"}</button>${o.doorPhoto?`<span class="photo"><b>👜</b>${esc(o.doorPhotoAt)}</span>`:""}</div>
+    <label class="f" for="code">Delivery code from Ngozi<input id="code" inputmode="numeric" maxlength="4" class="mono" style="font-size:22px;letter-spacing:.3em;text-align:center" placeholder="····"></label><button class="b go full" data-act="code" ${o.doorPhoto?"":"disabled"}>Confirm delivery</button>${o.wrong?`<p class="small hint" style="margin:0">${o.wrong} wrong. ${5-o.wrong} left before it locks.</p>`:""}${S.locked?`<div class="notice bad">Locked. Operations will confirm with the customer.</div>`:""}`:
+    `<details><summary class="small" style="font-weight:700;cursor:pointer">Report a problem</summary><p class="small">Breakdowns and accidents go straight to Operations, who can send another rider.</p></details>`}`;
+  else body=`<div style="font-size:18px;font-weight:800">Stop 3 done</div><div class="notice">#1042 delivered. Next: Chevron (#1043, #3051).</div>${stops()}`;
+  return `<div class="stage"><div class="phone"><div class="sb"><span>${now()}</span><span>4G ▮▮▮</span></div><div class="ab rider"><span>Ọ̀nà Rider</span><span>${esc(r.short)}</span></div><div class="bd">${switcher}${body}</div></div>
+  <div class="notes"><h1>Rider app</h1><p class="sub">Account from Operations, one vehicle, no money, no earnings screen.</p><ul><li>Whole routes across businesses; one pickup code per shop visit.</li><li><b>Arrived at shop</b> starts the 10 free minutes; after that the shop is charged ₦200 per 5 minutes. Failed pickup after 20 minutes (30 if the shop asked for more time).</li><li>Photos of the bags at pickup and at the door decide damage claims.</li><li>Rider change: the first rider shows a handover code; the new rider types it.</li><li>Location shared only while a trip is open.</li></ul></div></div>`;
+}
+
+// ---------- Customer ----------
+function vCust(){const o=O(),c=S.cust;let body;
+  if(!c.logged){body=`${o?`<div class="email"><div class="from">Adunni Boutique via Ọ̀nà</div><p style="margin:6px 0 0">Adunni Boutique has sent you order #1042 for today, 4–6pm. Sign in to choose the address and follow it.</p></div>`:`<div class="notice">No email yet.</div>`}<div style="font-size:18px;font-weight:800;margin-top:6px">Sign in</div><label class="f" for="em">Email<input id="em" value="ngozi@example.com"></label><label class="f" for="pw">Password<input id="pw" type="password" value="demo-password"></label><button class="b pri full" data-act="login">Sign in</button>`;return cwrap(body,false)}
+  if(c.tab==="addresses")body=`<div style="font-size:18px;font-weight:800">Saved addresses</div>${S.addresses.map(a=>`<div class="card"><b>${a.label}</b><div class="small">${esc(a.street)}, ${esc(a.area)}</div></div>`).join("")}`;
+  else if(c.tab==="account")body=`<div style="font-size:18px;font-weight:800">Account</div><div class="card"><b>Ngozi Okafor</b><div class="small mono">ngozi@example.com</div></div><div class="card"><b>Businesses that can send you orders</b><div class="small">Adunni Boutique · Mama Tee Bakery</div></div>`;
+  else if(c.view==="order"&&o)body=cOrder(o);
+  else body=`<div style="font-size:18px;font-weight:800">My orders</div>${o?`<button class="ocard" data-act="openorder"><div class="row" style="justify-content:space-between"><b>Adunni Boutique · #1042</b>${sp(o.status==="Awaiting address"?"Choose address":o.status)}</div><div class="small muted">Today 4–6pm</div></button>`:""}<div class="ocard" style="cursor:default"><b>Mama Tee Bakery · #2190</b> ${pill("Delivered","p-ok")}</div>`;
+  return cwrap(body,true)}
+function cOrder(o){const r=curRider(),v=r&&V(r.veh);
+  const steps=[["Order placed",o.createdAt],["Address confirmed",o.addrAt],["Packed",o.packedAt],["Paid and handed to Ọ̀nà",o.readyAt],["Rider assigned",o.acceptedAt?o.acceptedAt+" · "+R(S.route.rider).name:null],["Picked up",o.pickupAt],["Delivered",o.deliveredAt]];const di=steps.filter(x=>x[1]).length;
+  let top="";
+  if(o.status==="Awaiting address")top=`<b>Where should Adunni Boutique deliver?</b>${S.addresses.map((a,i)=>`<label class="addr" for="ad${a.id}"><input type="radio" name="ad" id="ad${a.id}" value="${a.id}" ${i===0?"checked":""}><div><b>${a.label}</b><div class="small">${esc(a.street)}, ${esc(a.area)} · ${a.km} km</div></div></label>`).join("")}<button class="b pri full" data-act="chooseaddr">Use this address</button>`;
+  if(o.status==="Rider at shop")top=`<div class="notice">Your rider is collecting your order from Adunni Boutique.</div>`;
+  if(o.status==="Failed pickup")top=`<div class="notice warn">Short delay at the shop. Adunni Boutique will confirm a new time.</div>`;
+  if(o.status==="Out for delivery"){top=`${S.cong?`<div class="notice warn"><b>Heavy traffic on the Lekki–Epe Expressway.</b> New estimate ${eta(o)}, still within your 4–6pm window.</div>`:""}${S.swap&&S.swap.done?`<div class="notice">Your rider has changed to <b>Musa Bello</b> (${esc(S.swap.reason.toLowerCase())}). Your delivery code stays the same.</div>`:""}${map()}<div class="eta"><span>Estimated arrival</span><b>${eta(o)}</b></div>`}
+  if(r&&S.route.accepted&&!["Delivered","Failed pickup"].includes(o.status))top+=`<div class="ridercard"><div class="avatar">${esc(r.short[0])}</div><div><b>${esc(r.name)}</b><div class="small mono">${esc(r.phone)}</div><div class="small"><span class="veh">${v.type} · ${v.plate}</span></div></div>${pill("Call","p-ok")}</div>`;
+  if(o.status==="Out for delivery")top+=`<div class="small"><b>Check your items</b>, then give the rider this code:</div><ul class="items">${o.lines.map(l=>`<li><label class="chk"><input type="checkbox"> ${esc(prod(l.pid).name)}</label><span class="mono">×${l.qty}</span></li>`).join("")}</ul><div class="code">${o.code.split("").join(" ")}</div>`;
+  let after="";
+  if(o.status==="Delivered")after=o.rating||o.problem?`<div class="notice">${o.rating?`Rated ${o.rating}★. `:""}${o.problem?`Reported: ${esc(o.problem.type)}. ${S.claim?(S.claim.decision==="rider"?"Ọ̀nà took responsibility; Adunni Boutique will replace it.":S.claim.decision==="store"?"Adunni Boutique will sort this out with you.":"Ọ̀nà is checking the photos."):o.problem.toBiz?"Sent to Adunni Boutique.":"Sent to Ọ̀nà."}`:""}</div>`:
+   `<b>How was it?</b><div class="stars">${[1,2,3,4,5].map(n=>`<button data-act="rate" data-n="${n}" aria-label="${n} stars">★</button>`).join("")}</div>
+    <details><summary class="small" style="font-weight:700;cursor:pointer">Report a problem</summary><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px"><label class="f" for="ctype">What went wrong<select id="ctype"><option>Item damaged</option><option>Item missing</option><option>Wrong item</option><option>Late delivery</option><option>Rider conduct</option></select></label><label class="f" for="ctext">Details<textarea id="ctext" rows="2">One handle on the tote is torn.</textarea></label><button class="b full" data-act="complain">Send</button><p class="small muted" style="margin:0">Damage: within 48 h. Missing items: within 24 h.</p></div></details>`;
+  return `<button class="b" data-act="back" style="align-self:flex-start">← My orders</button><div><div class="small muted">Adunni Boutique · #1042 · today 4–6pm</div><div style="font-size:18px;font-weight:800">${esc(o.status)}</div></div>${top}${after}<ul class="timeline">${steps.map((x,i)=>`<li class="${i<di?"done":i===di?"now":"todo"}"><span class="d"></span><div><div class="tt">${x[0]}</div><div class="ts">${x[1]||""}</div></div></li>`).join("")}</ul>`}
+function cwrap(body,tb){const c=S.cust;return `<div class="stage"><div class="phone"><div class="sb"><span>${now()}</span><span>Wi-Fi ▮▮▮</span></div><div class="ab cust"><span>Ọ̀nà</span><span>${c.logged?"Ngozi":""}</span></div><div class="bd">${body}</div>${tb?`<div class="ptabs">${[["orders","Orders"],["addresses","Addresses"],["account","Account"]].map(([k,l])=>`<button aria-pressed="${c.tab===k}" data-ctab="${k}">${l}</button>`).join("")}</div>`:""}</div>
+  <div class="notes"><h1>Customer app</h1><p class="sub">Gets orders from businesses, chooses the address, follows the rider, gives the delivery code. Told automatically about traffic delays and rider changes, so nobody has to chase anyone.</p></div></div>`}
+
+// ---------- events ----------
+function bind(){
+  const em=$("#nem");if(em){const f=()=>{const d=(em.value.split("@")[1]||"").toLowerCase();$("#nhint").textContent=TYPO[d]?`Did you mean ${em.value.split("@")[0]}@${TYPO[d]}?`:""};em.oninput=f;f()}
+  if($("#np")){const u=m=>{const p=prod(+$("#np").value);$("#na").textContent=avail(p)+" available";if(!m)$("#nveh").value=p.size==="Large"?"Van":"Bike";$("#nfee").textContent=naira(fee($("#nveh").value,"0–5 km"))};$("#np").onchange=()=>u();$("#nveh").onchange=()=>u(true);u()}
+}
+let chosenSlot="4–6pm";
+document.addEventListener("click",e=>{
+  const rb=e.target.closest("[data-role]");if(rb){role=rb.dataset.role;const g=guide();if(g.t===role&&g.tab)tabs[role]=g.tab;render();return}
+  const tb=e.target.closest("[data-tab]");if(tb){const [r,k]=tb.dataset.tab.split(":");tabs[r]=k;render();return}
+  const ct=e.target.closest("[data-ctab]");if(ct){S.cust.tab=ct.dataset.ctab;S.cust.view="list";render();return}
+  const b=e.target.closest("[data-act]");if(!b)return;const o=O(),rq=S.request,rt=S.route;
+  const H={
+   slot:()=>{chosenSlot=b.dataset.s;document.querySelectorAll(".slot").forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===chosenSlot));return true},
+   create:()=>{const p=prod(+$("#np").value),q=+$("#nq").value;if(q>avail(p)){toast(`Only ${avail(p)} available`);return}p.res+=q;S.moves.push([now(),p.name.replace(" · green",""),"reserve +"+q,"Order #1042"]);
+     S.orders[1042]={id:1042,biz:1,name:$("#nnm").value,email:$("#nem").value,phone:$("#nph").value,lines:[{pid:p.id,qty:q}],slot:chosenSlot,veh:$("#nveh").value,band:"0–5 km",fee:fee($("#nveh").value,"0–5 km"),status:"Awaiting address",createdAt:now(),t:0};
+     S.live=true;tabs.owner="orders";toast("Order #1042 sent. Ngozi will be emailed.")},
+   login:()=>{S.cust.logged=true;if(o)S.cust.view="order"},openorder:()=>{S.cust.view="order"},back:()=>{S.cust.view="list"},
+   chooseaddr:()=>{const a=S.addresses.find(x=>x.id===+document.querySelector('input[name="ad"]:checked').value);o.address=a;o.band=a.km<=5?"0–5 km":"5–15 km";o.fee=fee(o.veh,o.band);o.status="Received";o.addrAt=now();toast(`Address shared. ${a.km} km → ${o.band}, fee ${naira(o.fee)}.`)},
+   pack:()=>{const l=o.lines[0],p=prod(l.pid);p.res-=l.qty;p.on-=l.qty;S.moves.push([now(),p.name.replace(" · green",""),"pick −"+l.qty,"Order #1042 packed"]);o.bags=Math.max(1,+$("#bags").value||1);o.status="Packed";o.packedAt=now();toast("Packed. Now request dispatch.")},
+   request:()=>{const ids=[...document.querySelectorAll(".rqs:checked")].map(x=>+x.value);if(!ids.includes(1042)){toast("Keep #1042 ticked for the demo");return}S.request={ids,total:ids.reduce((s,i)=>s+S.orders[i].fee,0),tries:0,status:"pay",waited:0};ids.forEach(i=>S.orders[i].status="Awaiting payment");toast(`Dispatch requested for ${ids.length} orders. One transfer of ${naira(S.request.total)}.`)},
+   upload:()=>{const ref=$("#pref").value.trim();if(!ref){toast("Enter the reference");return}const f=$("#rcpt").files[0];rq.ref=ref;rq.tries++;rq.at=now();rq.receipt=null;rq.waited=3;
+     const done=()=>{rq.status="check";rq.ids.forEach(i=>S.orders[i].status="Payment check");toast("Receipt sent.");render()};
+     if(f&&f.type.startsWith("image/")){const r=new FileReader();r.onload=()=>{rq.receipt=r.result;done()};r.onerror=done;r.readAsDataURL(f);return true}done();return true},
+   waitrq:()=>{rq.waited+=10},
+   confirmpay:()=>{rq.ok=true;rq.status="ok";rq.okAt=now();rq.ids.forEach(i=>{const x=S.orders[i];x.paid=true;x.status="Ready for pickup";x.readyAt=now()});toast(`Confirmed in ${rq.waited} min. ${rq.ids.length} orders released to Operations.`)},
+   rejectpay:()=>{rq.reason=$("#rj").value;if(rq.tries>=3){rq.ids.forEach(i=>S.orders[i].status="Packed");S.request=null;toast("Third rejection: request closed.")}else{rq.status="pay";rq.ids.forEach(i=>S.orders[i].status="Payment rejected");toast("Rejected with reason.")}},
+   batch:()=>{S.route={ids:[3051,1042,1043],rider:null,accepted:false,stops:[{done:false},{wait:0,extra:false}]};toast("Route accepted. Assign a bike rider.")},
+   nobatch:()=>{toast("Kept separate (demo continues with the suggested route).")},
+   assign:()=>{rt.rider=+b.dataset.r;toast(`Offered to ${R(rt.rider).short}.`)},
+   declineroute:()=>{rt.rider=null;toast("Declined. Back to Operations.")},
+   accept:()=>{rt.accepted=true;R(rt.rider).status="On a trip";rt.ids.forEach(i=>S.orders[i].status=i===3051?"Rider assigned":"Rider assigned");o.acceptedAt=now();o.pcode=String(1000+Math.floor(Math.random()*9000));toast("Route accepted.")},
+   arrive:()=>{o.status="Rider at shop";S.orders[1043].status="Rider at shop";o.arriveAt=now();toast("Owner told: rider at your door. 10 free minutes start.")},
+   skip:()=>{rt.stops[1].wait+=5},
+   extra:()=>{rt.stops[1].extra=true;toast("Rider told: 10 more minutes. Waiting charge still applies after the free 10.")},
+   photo:()=>{if(b.dataset.k==="pick"){o.pickPhoto=true;o.pickPhotoAt=now()}else{o.doorPhoto=true;o.doorPhotoAt=now()}toast("Photo saved with time and location.")},
+   pcode:()=>{if($("#pcode").value.trim()!==o.pcode){toast("Wrong pickup code.");return}o.status="Out for delivery";S.orders[1043].status="Out for delivery";o.pickupAt=now();o.code=String(1000+Math.floor(Math.random()*9000));o.t=0;
+     const w=rt.stops[1].wait;if(w>10)S.request.waiting=wcharge(w);ride();toast(w>10?`Picked up. Waiting charge ${naira(wcharge(w))} added to Adunni's next payment.`:"Picked up. Customer sees the map and code.")},
+   failpick:()=>{o.failReason=$("#fp").value;o.status="Failed pickup";S.orders[1043].status="Failed pickup";toast("Failed pickup recorded (business). Rider continues the route.")},
+   swap:()=>{S.swap={reason:$("#swr").value,code:String(1000+Math.floor(Math.random()*9000)),done:false};clearInterval(timer);riderView=1;toast("Musa sent to Sunday. Sunday's app now shows a handover code.")},
+   rv:()=>{riderView=+b.dataset.v},
+   handover:()=>{if($("#hcode").value.trim()!==S.swap.code){toast("Wrong handover code.");return}S.swap.done=true;S.swap.at=now();R(1).status="Available";R(2).status="On a trip";ride();toast("Handover confirmed. Business and customer told about the new rider.")},
+   code:()=>{if(S.locked)return;if($("#code").value.trim()===o.code){o.status="Delivered";o.deliveredAt=now();toast("Delivered.")}else{o.wrong=(o.wrong||0)+1;if(o.wrong>=5){S.locked=true;toast("Locked. Operations notified.")}else toast("Wrong delivery code.")}},
+   override:()=>{const r=$("#ovr").value.trim();if(r.length<10){toast("Give a reason of 10+ characters");return}o.status="Delivered";o.deliveredAt=now();o.override=r;S.locked=false;if(!o.doorPhoto){o.doorPhoto=true;o.doorPhotoAt=now()}toast("Recorded as delivered by Operations. Logged.")},
+   rate:()=>{o.rating=+b.dataset.n;toast("Thanks.")},
+   complain:()=>{const t=$("#ctype").value,txt=$("#ctext").value.trim();o.problem={type:t,text:txt,toBiz:["Item missing","Wrong item"].includes(t)};if(t==="Item damaged"){S.claim={item:prod(o.lines[0].pid).name,text:txt,at:now()};toast("Claim opened. Ọ̀nà will compare the pickup and door photos.")}else toast(o.problem.toBiz?"Sent to Adunni Boutique.":"Sent to Ọ̀nà.")},
+   claim:()=>{const d=b.dataset.d;S.claim.decision=d;S.claim.decisionText=d==="rider"?"Rider-caused: bags were intact at pickup. ₦12,000 refunded to Adunni Boutique; recorded against the rider.":"Store-caused: the pickup photo shows the handle already damaged. Sent to Adunni Boutique to resolve with the customer; logged as a packing issue.";toast(S.claim.decisionText)},
+   prompt:()=>{S.issues.find(i=>i.id===b.dataset.i).done=true;toast("Prompt sent.")},
+   pause:()=>{const r=R(+b.dataset.r);r.status=r.status==="Paused"?"Available":"Paused";toast(r.status==="Paused"?`${r.short} paused.`:`${r.short} available.`)},
+   addrider:()=>{const n=$("#rn").value.trim(),p=$("#rp").value.trim();if(!n||!p){toast("Name and phone needed");return}S.riders.push({id:S.riders.length+1,name:n,short:n.split(" ")[0],phone:p,veh:4,status:"Available",del:0,ontime:0,rating:0,comp:0,docs:"Licence to "+$("#rl").value,pay:0});toast(`${n} created with a temporary password.`)},
+   adddisp:()=>{const n=$("#dn").value.trim();if(!n){toast("Enter a name");return}S.staff.push([n,"Dispatch staff"]);toast("Dispatch account created.")},
+   addops:()=>{const n=$("#sn").value.trim();if(!n){toast("Enter a name");return}S.staff.push([n,"Operations"]);toast("Operations account created.")},
+   addbiz:()=>{const n=$("#bn").value.trim();if(!n){toast("Enter a name");return}toast(`${n} created. Owner emailed a set-password link.`)},
+  };
+  if(H[b.dataset.act]){const keep=H[b.dataset.act]();if(!keep)render()}
+});
+function ride(){clearInterval(timer);timer=setInterval(()=>{const o=O();o.t=Math.min(1,o.t+0.05);if(o.t>=0.4&&!S.cong){S.cong=true}if(o.t>=1)clearInterval(timer);if(["cust","rider"].includes(role)||(role==="owner"&&tabs.owner==="orders")||(role==="ops"&&["dispatch","trips"].includes(tabs.ops)))render();else guide()},1000)}
+$("#reset").onclick=()=>{clearInterval(timer);S=fresh();start=Date.now();role="owner";tabs={super:"overview",ops:"dispatch",owner:"new"};riderView=1;chosenSlot="4–6pm";render();toast("Demo restarted")};
+render();
+})();
+</script>
