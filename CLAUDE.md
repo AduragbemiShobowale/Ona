@@ -23,8 +23,9 @@ Fees by vehicle (bike, car, van, truck) and distance band (0–5, 5–15, 15–3
 
 ## Conventions
 
-- Screens are listed in `src/pages/screens/registry.js`; menus and routes are generated from it. Replace a placeholder by giving the entry its real component.
+- Screens are listed in `src/pages/screens/registry.jsx`; menus and routes are generated from it. Replace a placeholder by giving the entry its real component.
 - Plain CSS in `src/index.css`, Ọ̀nà's own "waybill and route" design: indigo surfaces with the adire stitch pattern, cool paper working surfaces, waybill cards (mono uppercase headers, dashed dividers, ticket notches), the dashed route line with a pickup dot and delivery pin, danfo-yellow accents. Indigo top bar with tabs on desktop, bottom tab bar on phones. Role colour is the band under the top bar (`[data-role]`). Do not bring back Verity's sidebar or 3D scene.
 - Icons: `src/components/icons.jsx`; every screen in the registry names one.
 - Write copy the way the person using the screen talks; name things by what they recognise.
-- `supabase/functions/admin-users` is still Verity's and must be rewritten for Ọ̀nà's roles in phase 1 before it is deployed.
+- `supabase/functions/admin-users` creates businesses with owners, Operations staff and riders, each with a temporary password. Riders without e-mail log in as `<phone>@rider.ona.invalid`; `src/lib/login.js` builds the same address.
+- Run `supabase/tests/0001_access_test.sql` after any change to tables, policies or functions; it must end with `ALL ACCESS TESTS PASSED`.
