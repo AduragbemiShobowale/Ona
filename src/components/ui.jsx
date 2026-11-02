@@ -83,10 +83,17 @@ export function PageHead({ title, sub, children, hero }) {
 export function BrandSplash() {
   return (
     <div className="v-splash" role="status" aria-label="Loading Ọ̀nà">
-      <div className="v-tile"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="48" r="32" /><path className="pin" d="M60 88c-7 0-13 6-13 13 0 9 13 19 13 19s13-10 13-19c0-7-6-13-13-13z" /></svg></div>
-      <div className="v-word">ọ̀nà</div>
+      <div className="v-mark" aria-hidden="true">
+        <svg viewBox="0 0 120 130">
+          <circle className="v-ripple" cx="60" cy="112" r="10" /><circle className="v-ripple r2" cx="60" cy="112" r="10" />
+          <circle className="v-ring" cx="60" cy="48" r="32" />
+          <path className="v-pin" d="M60 88c-7 0-13 6-13 13 0 9 13 19 13 19s13-10 13-19c0-7-6-13-13-13z" />
+          <circle className="v-pin-dot" cx="60" cy="101" r="4.5" />
+        </svg>
+      </div>
+      <div className="v-word"><span>ọ̀</span><span>n</span><span>à</span></div>
       <div className="v-tag">Last-mile delivery for Lagos businesses</div>
-      <div className="v-bar" />
+      <div className="v-road" aria-hidden="true"><i /></div>
     </div>
   )
 }

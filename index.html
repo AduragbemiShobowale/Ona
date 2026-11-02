@@ -7,36 +7,75 @@
     <title>Ọ̀nà · Last-mile delivery</title>
     <meta name="description" content="Ọ̀nà picks up from Lagos businesses and delivers to their customers, with live tracking and a pickup and delivery code at every handover." />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Link previews (WhatsApp, iMessage, X, LinkedIn). The image URL must be absolute. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ọ̀nà" />
+    <meta property="og:title" content="Ọ̀nà · Your goods, on their way" />
+    <meta property="og:description" content="Last-mile delivery for Lagos businesses: live tracking, and a code at every handover." />
+    <meta property="og:url" content="https://ona-one.vercel.app/" />
+    <meta property="og:image" content="https://ona-one.vercel.app/og-image.jpg" />
+    <meta property="og:image:secure_url" content="https://ona-one.vercel.app/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Ọ̀nà ring-and-pin logo with the words Your goods, on their way" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ọ̀nà · Your goods, on their way" />
+    <meta name="twitter:description" content="Last-mile delivery for Lagos businesses: live tracking, and a code at every handover." />
+    <meta name="twitter:image" content="https://ona-one.vercel.app/og-image.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" />
-    <!-- Splash shown while the app loads; the app's BrandSplash uses the same classes. -->
+    <!-- Splash shown while the app loads; the app's BrandSplash uses the same markup and classes.
+         The ring draws itself, the pin drops in and lands as the dot under the ọ, ripples spread,
+         then the mark breathes while a rider dot runs the route underneath. -->
     <style>
-      .v-splash { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
-        background: #121741 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2' stroke-linecap='round' stroke-dasharray='3 5'%3E%3Crect x='6' y='6' width='32' height='32' rx='7'/%3E%3Ccircle cx='22' cy='22' r='6'/%3E%3C/g%3E%3C/svg%3E"); color: #fff;
-        font: 600 15px/1.4 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
-      .v-tile { position: relative; width: 96px; height: 96px; border-radius: 26px; display: grid; place-items: center;
-        background: #1b2366; box-shadow: 0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12); animation: v-float 3.2s ease-in-out infinite; }
-      .v-tile::before { content: ''; position: absolute; inset: 0; border-radius: 26px; border: 2px solid rgba(242,183,5,.55); animation: v-ring 2.4s cubic-bezier(.2,.6,.3,1) infinite; }
-      .v-tile svg { width: 60px; height: 60px; }
-      .v-tile circle { fill: none; stroke: #fff; stroke-width: 14; }
-      .v-tile .pin { fill: #f2b705; }
-      .v-word { position: relative; font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
-      .v-tag { position: relative; margin-top: -12px; font-size: 13px; font-weight: 500; color: #c3c8ee; text-align: center; padding: 0 16px; }
-      .v-bar { position: relative; width: 140px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; }
-      .v-bar::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 3px; background: linear-gradient(90deg, rgba(242,183,5,0), #f2b705, rgba(242,183,5,0)); animation: v-slide 1.3s ease-in-out infinite; }
-      @keyframes v-ring { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.75); opacity: 0; } }
-      @keyframes v-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-      @keyframes v-slide { from { left: -40%; } to { left: 100%; } }
-      @media (prefers-reduced-motion: reduce) { .v-splash *, .v-tile::before { animation: none !important; } }
+      .v-splash { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; overflow: hidden;
+        background: #121741 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.07' stroke-width='2' stroke-linecap='round' stroke-dasharray='3 5'%3E%3Crect x='6' y='6' width='32' height='32' rx='7'/%3E%3Ccircle cx='22' cy='22' r='6'/%3E%3C/g%3E%3C/svg%3E");
+        color: #fff; font: 600 15px/1.4 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+      .v-splash::before { content: ''; position: absolute; width: 720px; height: 720px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(242,183,5,.18) 0%, rgba(242,183,5,.05) 35%, rgba(242,183,5,0) 62%); animation: v-glow 2.8s ease-in-out infinite; }
+      .v-mark { position: relative; width: 150px; height: 150px; }
+      .v-mark svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+      .v-ring { fill: none; stroke: #fff; stroke-width: 13; stroke-linecap: round; stroke-dasharray: 202; stroke-dashoffset: 202;
+        transform-origin: 60px 48px; transform: rotate(-90deg); animation: v-draw 2.8s cubic-bezier(.65,0,.35,1) infinite; filter: drop-shadow(0 0 10px rgba(255,255,255,.25)); }
+      .v-pin { fill: #f2b705; transform-origin: 60px 120px; animation: v-drop 2.8s cubic-bezier(.3,1.4,.5,1) infinite; filter: drop-shadow(0 6px 10px rgba(242,183,5,.45)); }
+      .v-pin-dot { fill: #121741; animation: v-drop 2.8s cubic-bezier(.3,1.4,.5,1) infinite; transform-origin: 60px 120px; }
+      .v-ripple { fill: none; stroke: #f2b705; stroke-width: 2; transform-origin: 60px 112px; opacity: 0; animation: v-ripple 2.8s ease-out infinite; }
+      .v-ripple.r2 { animation-delay: .25s; }
+      .v-word { position: relative; display: flex; font-size: 46px; font-weight: 800; letter-spacing: -0.04em; }
+      .v-word span { display: inline-block; opacity: 0; transform: translateY(10px); animation: v-letter 2.8s ease-out infinite; }
+      .v-word span:nth-child(2) { animation-delay: .08s; } .v-word span:nth-child(3) { animation-delay: .16s; }
+      .v-tag { position: relative; margin-top: -14px; font-size: 13.5px; font-weight: 500; color: #c3c8ee; text-align: center; padding: 0 16px; }
+      .v-road { position: relative; width: 190px; height: 14px; }
+      .v-road::before { content: ''; position: absolute; left: 0; right: 0; top: 6px; border-top: 2px dashed rgba(255,255,255,.28); }
+      .v-road i { position: absolute; top: 1px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: #f2b705; box-shadow: 0 0 0 4px rgba(242,183,5,.22); animation: v-ride 1.4s ease-in-out infinite alternate; }
+      @keyframes v-draw { 0% { stroke-dashoffset: 202; } 35%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -202; } }
+      @keyframes v-drop { 0%, 22% { transform: translateY(-120px) scale(.6); opacity: 0; } 42% { transform: translateY(0) scale(1); opacity: 1; } 50% { transform: translateY(0) scale(1.08, .9); } 58%, 86% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(0) scale(.9); opacity: 0; } }
+      @keyframes v-ripple { 0%, 42% { opacity: 0; transform: scale(.4); } 48% { opacity: .9; } 80%, 100% { opacity: 0; transform: scale(2.6); } }
+      @keyframes v-letter { 0%, 30% { opacity: 0; transform: translateY(10px); } 45%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+      @keyframes v-glow { 0%, 100% { transform: scale(.88); opacity: .7; } 50% { transform: scale(1.08); opacity: 1; } }
+      @keyframes v-ride { from { left: 0; } to { left: calc(100% - 12px); } }
+      @media (prefers-reduced-motion: reduce) {
+        .v-splash *, .v-splash::before { animation: none !important; }
+        .v-ring { stroke-dashoffset: 0; } .v-pin, .v-pin-dot, .v-word span { opacity: 1; transform: none; }
+      }
     </style>
   </head>
   <body>
     <div id="root">
       <div class="v-splash" role="status" aria-label="Loading Ọ̀nà">
-        <div class="v-tile"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="48" r="32" /><path class="pin" d="M60 88c-7 0-13 6-13 13 0 9 13 19 13 19s13-10 13-19c0-7-6-13-13-13z" /></svg></div>
-        <div class="v-word">ọ̀nà</div>
+        <div class="v-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 130">
+            <circle class="v-ripple" cx="60" cy="112" r="10" /><circle class="v-ripple r2" cx="60" cy="112" r="10" />
+            <circle class="v-ring" cx="60" cy="48" r="32" />
+            <path class="v-pin" d="M60 88c-7 0-13 6-13 13 0 9 13 19 13 19s13-10 13-19c0-7-6-13-13-13z" />
+            <circle class="v-pin-dot" cx="60" cy="101" r="4.5" />
+          </svg>
+        </div>
+        <div class="v-word"><span>ọ̀</span><span>n</span><span>à</span></div>
         <div class="v-tag">Last-mile delivery for Lagos businesses</div>
-        <div class="v-bar"></div>
+        <div class="v-road" aria-hidden="true"><i></i></div>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
