@@ -30,6 +30,10 @@ npm test
 npm run build
 ```
 
+## Live
+
+https://ona-one.vercel.app (Vercel project `ona`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
+
 ## Backend
 
 Supabase project `ona` (London, eu-west-2), ref `sezjhdfmgjndnbsjtsjp`. The app's defaults point at it; the URL and publishable key are safe in the browser because access is enforced by row-level security and database functions.
