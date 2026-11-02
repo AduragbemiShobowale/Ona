@@ -43,12 +43,12 @@ export default function Businesses() {
                   <td><strong>{b.name}</strong><div className="muted small">{b.sector || '—'}</div></td>
                   <td>{b.owner ? <>{b.owner.full_name}<div className="muted small">{b.owner.email}</div></> : '—'}</td>
                   <td>{b.pickup_address || '—'}<div className="muted small">{[b.pickup_landmark, b.zone].filter(Boolean).join(' · ')}</div></td>
-                  <td>{date(b.created_at)}</td>
+                  <td className="nowrap">{date(b.created_at)}</td>
                   <td>{b.active ? <Badge tone="good">Active</Badge> : <Badge tone="muted">Inactive</Badge>}</td>
-                  <td className="row">
+                  <td><div className="row nowrap">
                     {b.owner && <button className="btn sm" disabled={busy} onClick={() => reset(b.owner)}>Reset owner password</button>}
                     <button className="btn sm" onClick={() => setToggle(b)}>{b.active ? 'Deactivate' : 'Reactivate'}</button>
-                  </td>
+                  </div></td>
                 </tr>
               ))}</tbody>
             </table></div>

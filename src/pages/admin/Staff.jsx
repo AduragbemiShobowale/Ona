@@ -17,10 +17,10 @@ export function StaffTable({ rows, canManage, onReset, onToggle, busy }) {
           <td>{p.ops_lead ? 'Operations lead' : 'Dispatch staff'}</td>
           <td>{p.last_login ? dateTime(p.last_login) : 'Never'}</td>
           <td>{p.status === 'active' ? <Badge tone="good">Active</Badge> : <Badge tone="muted">Inactive</Badge>}</td>
-          <td className="row">{canManage(p) && <>
+          <td><div className="row nowrap">{canManage(p) && <>
             <button className="btn sm" disabled={busy} onClick={() => onReset(p)}>Reset password</button>
             <button className="btn sm" onClick={() => onToggle(p)}>{p.status === 'active' ? 'Deactivate' : 'Reactivate'}</button>
-          </>}</td>
+          </>}</div></td>
         </tr>
       ))}</tbody>
     </table></div>

@@ -21,11 +21,12 @@ begin
     (rd2, 't-rd2@ona.test', '{"ona_role":"rider"}', now()),
     (cu,  't-cu@ona.test',  '{}', now());
   -- a self-signup cannot pick its role through user metadata
-  insert into auth.users (id, email, raw_user_meta_data) values (sneaky, 't-sneaky@ona.test', '{"ona_role":"super_admin","full_name":"Sneaky"}');
+  insert into auth.users (id, email, raw_user_meta_data) values (sneaky, 't-sneaky@ona.test', '{"ona_role":"super_admin","full_name":"Sneaky","phone":"0803 555 0100"}');
 
   -- trigger created the right profiles
   if (select role from profiles where id = cu) <> 'customer' then raise exception 'FAIL: plain signup should be customer'; end if;
   if (select role from profiles where id = sneaky) <> 'customer' then raise exception 'FAIL: user metadata must not set the role'; end if;
+  if (select phone from profiles where id = sneaky) is distinct from '0803 555 0100' then raise exception 'FAIL: customer phone not saved'; end if;
   if (select business_id from profiles where id = oa) <> ba then raise exception 'FAIL: owner not linked to business'; end if;
   if not exists (select 1 from riders where profile_id = rd and zone = 'Lekki') then raise exception 'FAIL: rider row missing'; end if;
   if not (select must_change_password from profiles where id = rd) then raise exception 'FAIL: must_change_password not set'; end if;

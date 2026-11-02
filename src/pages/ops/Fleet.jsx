@@ -73,13 +73,13 @@ export default function Fleet({ readOnly }) {
                     <td>{x.zone || '—'}</td>
                     <td className={soon(x.licence_expiry) ? 'warn-text' : ''}>{x.licence_expiry ? date(x.licence_expiry) : '—'}{soon(x.licence_expiry) && <div className="small">Expires soon</div>}</td>
                     <td><Badge tone={AVAIL[x.availability][1]}>{AVAIL[x.availability][0]}</Badge></td>
-                    {!readOnly && <td className="row">
+                    {!readOnly && <td><div className="row nowrap">
                       {x.availability === 'paused'
                         ? <button className="btn sm" onClick={() => setAvail(x.id, 'available')}>Unpause</button>
                         : <button className="btn sm" onClick={() => setAvail(x.id, 'paused')}>Pause</button>}
                       <button className="btn sm" disabled={a.busy} onClick={() => a.reset({ ...x, login: phoneFromLogin(x.email) || x.email })}>Reset password</button>
                       <button className="btn sm" onClick={() => a.setToggle(x)}>{x.status === 'active' ? 'Deactivate' : 'Reactivate'}</button>
-                    </td>}
+                    </div></td>}
                   </tr>
                 )
               })}</tbody>
@@ -96,10 +96,10 @@ export default function Fleet({ readOnly }) {
                   <td>{VT[x.type]}</td><td className="mono">{x.plate}</td><td>{x.capacity_bags} bags</td>
                   <td>{riders.find((rr) => rr.vehicle_id === x.id)?.full_name || '—'}</td>
                   <td><Badge tone={VSTATUS[x.status][1]}>{VSTATUS[x.status][0]}</Badge></td>
-                  {!readOnly && <td className="row">
+                  {!readOnly && <td><div className="row nowrap">
                     {x.status !== 'under_repair' && x.status !== 'retired' && <button className="btn sm" onClick={() => setVStatus(x.id, 'under_repair')}>Under repair</button>}
                     {x.status === 'under_repair' && <button className="btn sm" onClick={() => setVStatus(x.id, 'available')}>Back in service</button>}
-                  </td>}
+                  </div></td>}
                 </tr>
               ))}</tbody>
             </table></div>
