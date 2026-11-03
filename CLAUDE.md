@@ -2,6 +2,11 @@
 
 Read `README.md` first. The agreed behaviour is in `docs/spec.html` (v5); when code and spec disagree, the spec wins unless the owner of the repo says otherwise.
 
+## How changes reach `main`
+
+- **Never push to `main`.** Work on a branch, push the branch, and open a pull request. The repo owner reviews it on the Vercel preview link and merges it themselves.
+- Database migrations go to the one live Supabase project, so a pull request that adds one says so at the top, and the migration is applied only after the owner approves.
+
 ## Rules that must hold everywhere
 
 - **Five roles**: `super_admin`, `operations`, `owner`, `rider`, `customer`. Only customers sign themselves up.
