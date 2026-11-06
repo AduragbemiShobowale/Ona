@@ -41,6 +41,7 @@ Supabase project `ona` (London, eu-west-2), ref `sezjhdfmgjndnbsjtsjp`. The app'
 - Migrations: `supabase/migrations/` (applied in order).
 - Account creation: `supabase/functions/admin-users` (deployed). New accounts get a temporary password shown once and must change it at first sign-in. Riders without e-mail sign in with their phone number.
 - Access tests: `supabase/tests/0001_access_test.sql` runs the account and fleet privacy rules as each role; `0002_flow_test.sql` takes orders through every role (stock, send_order, customer linking, receipt rejected then confirmed, route, codes with lockout, override, claim, rider change, credit) and checks who can see what at each step. Both always roll back. Run them on the live project from the SQL editor, or locally on plain Postgres after `supabase/tests/local_stub.sql`. They end with `ALL ACCESS TESTS PASSED` and `ALL FLOW TESTS PASSED`.
+- Simulation: `supabase/simulation/sim_200.sql` drives 200 seeded orders through every role and returns its results as JSON (always rolls back). Results and the technical interpretation for chapter 4: `docs/simulation/`.
 - Storage: private buckets `receipts` (per business) and `photos` (per rider). Scheduled jobs (pg_cron): unpaid dispatch requests close after 2 hours; rider location points older than 30 days are deleted.
 
 ## Build phases
