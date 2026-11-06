@@ -78,7 +78,7 @@ export function AdminPayments() {
       q(supabase.from('claims').select('*, businesses(name)').in('status', ['approved', 'paid']).order('decided_at', { ascending: false })),
       rpc('admin_orders', { p_status: null, p_limit: 1000 }),
     ])
-    const ref = Object.fromEntries(orders.map((o) => [o.id, o.ref]))
+    const ref = Object.fromEntries((orders || []).map((o) => [o.id, o.ref]))
     return { pays, claims: claims.map((c) => ({ ...c, ref: ref[c.order_id] })) }
   }, [tab])
   const [run, busy] = useAction()

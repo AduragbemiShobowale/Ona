@@ -93,11 +93,32 @@ function NavItem({ m }) {
   )
 }
 
+// On phones tables show as stacked cards; each cell needs its column name, taken from the header.
+function useTableLabels(ref) {
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const label = () => el.querySelectorAll('.table-wrap table').forEach((t) => {
+      const heads = [...t.querySelectorAll('thead th')].map((th) => th.textContent.trim())
+      t.querySelectorAll('tbody tr, tfoot tr').forEach((tr) => [...tr.children].forEach((td, i) => {
+        const l = td.colSpan > 1 ? '' : heads[i] ?? ''
+        if (td.getAttribute('data-label') !== l) td.setAttribute('data-label', l)
+      }))
+    })
+    label()
+    const mo = new MutationObserver(label)
+    mo.observe(el, { childList: true, subtree: true })
+    return () => mo.disconnect()
+  }, [ref])
+}
+
 export default function Layout() {
   const { role, profile, signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const [confirmOut, setConfirmOut] = useState(false)
   const loc = useLocation()
+  const pageRef = useRef(null)
+  useTableLabels(pageRef)
   useEffect(() => setOpen(false), [loc.pathname])
   const items = MENUS[role] || []
   const groups = []
@@ -147,7 +168,7 @@ export default function Layout() {
           <span className="today">{today}</span>
           <Bell />
         </header>
-        <main className="page">
+        <main className="page" ref={pageRef}>
           <PageErrorBoundary path={loc.pathname}><Outlet /></PageErrorBoundary>
         </main>
       </div>
