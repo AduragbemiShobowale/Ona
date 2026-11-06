@@ -1,0 +1,204 @@
+<title>Ọ̀nà 200-Order Simulation</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a technical report in one reading column, with wide tables and two small charts set into it. */
+:root {
+  --paper: #f4f5fa; --surface: #ffffff; --ink: #12152e; --ink-2: #474b6b; --ink-3: #686c8c; --line: #dfe2ee;
+  --indigo: #232c7a; --indigo-soft: #eceefa; --sun: #b98500; --sun-soft: #fdf3d2;
+  --good: #13734a; --good-soft: #e1f3ea; --bad: #b3261e; --bad-soft: #fbe5e3; --bar: #3d47a8;
+  --display: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --body: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0f1230; --surface: #171b40; --ink: #eef0ff; --ink-2: #c3c7ea; --ink-3: #9aa0cc; --line: #2c3163;
+  --indigo: #aab3ff; --indigo-soft: #232a62; --sun: #f2b705; --sun-soft: #3a3110; --good: #5fd49b; --good-soft: #143a2a;
+  --bad: #ff8a80; --bad-soft: #4a1c1a; --bar: #8f99ff; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #0f1230; --surface: #171b40; --ink: #eef0ff; --ink-2: #c3c7ea; --ink-3: #9aa0cc; --line: #2c3163;
+  --indigo: #aab3ff; --indigo-soft: #232a62; --sun: #f2b705; --sun-soft: #3a3110; --good: #5fd49b; --good-soft: #143a2a;
+  --bad: #ff8a80; --bad-soft: #4a1c1a; --bar: #8f99ff; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 16px/1.65 var(--body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 34px; }
+header { display: grid; gap: 12px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+h1 { font: 800 clamp(30px, 5vw, 44px)/1.1 var(--display); letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+h2 { font: 750 22px/1.25 var(--display); letter-spacing: -0.015em; margin: 0; text-wrap: balance; }
+h3 { font: 700 16px/1.3 var(--display); margin: 0; }
+p { margin: 0; max-width: 68ch; }
+section { display: grid; gap: 14px; min-width: 0; }
+.lede { font-size: 18px; color: var(--ink-2); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); }
+.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.panel.sys { border-top: 4px solid var(--good); }
+.panel.mod { border-top: 4px solid var(--sun); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; }
+.tag.sys { background: var(--good-soft); color: var(--good); }
+.tag.mod { background: var(--sun-soft); color: var(--sun); }
+.tag.bad { background: var(--bad-soft); color: var(--bad); }
+.table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th { text-align: left; font: 600 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ok { color: var(--good); font-weight: 700; }
+.mono { font-family: var(--mono); font-size: 13px; }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 68ch; }
+.callout { background: var(--indigo-soft); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; }
+.bars { display: grid; gap: 7px; }
+.bar-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 70px; align-items: center; gap: 10px; font-size: 13.5px; }
+.bar-row .track { height: 14px; background: var(--indigo-soft); border-radius: 4px; overflow: hidden; }
+.bar-row .track i { display: block; height: 100%; background: var(--bar); border-radius: 4px; }
+.bar-row .v { text-align: right; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.bar-row .k { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .bar-row { grid-template-columns: 110px minmax(0, 1fr) 56px; } }
+code { font-family: var(--mono); font-size: 13px; background: var(--indigo-soft); padding: 1px 6px; border-radius: 5px; }
+footer { color: var(--ink-3); font-size: 13.5px; border-top: 1px dashed var(--line); padding-top: 16px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ọ̀nà · Chapter 4 evidence · System verification</div>
+    <h1>200-order simulation and what it shows</h1>
+    <p class="lede">Two hundred orders were driven through Ọ̀nà's real database functions, acting as the business owner, super admin, Operations, rider and customer in turn. This page reports what the run proves about the system, and keeps apart the figures that only reflect the assumptions fed into it.</p>
+    <div class="meta"><span>Run 6 November 2026</span><span>Seed 0.2026 (re-runs give identical results)</span><span>Script: supabase/simulation/sim_200.sql</span></div>
+  </header>
+
+  <section>
+    <h2>Two kinds of result</h2>
+    <div class="split">
+      <div class="panel sys"><span class="tag sys">System result</span><h3>Evidence about the software</h3>
+        <p>Whether every rule held, whether data stayed private, whether stock and money reconcile, and how fast each function runs. These come from the system's own behaviour and can be reported as findings about the artefact.</p></div>
+      <div class="panel mod"><span class="tag mod">Modelled</span><h3>Consequences of the assumptions</h3>
+        <p>On-time rate, waiting charges, revenue, claims and ratings. The rates of failed pickups, traffic and wrong codes were chosen by the researcher, so these figures show that the dashboards compute correctly. They are not evidence about Lagos deliveries; the questionnaire is.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How the run worked</h2>
+    <p>Three sample businesses (fashion, food, electronics), eight riders (five bikes carrying 4 bags, two cars carrying 8, one van carrying 12) and 140 sample customers were created. Orders arrived in waves of ten across six Lagos zones and the real delivery windows. Each wave went through the full cycle: order, address, packing, dispatch request, receipt and confirmation, route suggestion, rider assignment, pickup with code, delivery with code, then ratings and claims. Every step called the same function the app calls, under the same role checks and row-level security.</p>
+    <p>Only two kinds of value were written directly, because they cannot pass in real time: how many minutes a rider waited at the shop, and when a parcel was handed over. Everything else went through the system.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Assumption</th><th class="n">Rate</th><th>Assumption</th><th class="n">Rate</th></tr></thead>
+      <tbody>
+        <tr><td>Business types the address</td><td class="n">55%</td><td>Rider waits 15–28 min at the shop</td><td class="n">15%</td></tr>
+        <tr><td>Customer already has an account</td><td class="n">65%</td><td>Failed pickup</td><td class="n">3%</td></tr>
+        <tr><td>Customer signs up only when asked to choose an address</td><td class="n">27%</td><td>Traffic notice, arrives after the window</td><td class="n">8%</td></tr>
+        <tr><td>Customer never signs up</td><td class="n">8%</td><td>Late without a notice</td><td class="n">4%</td></tr>
+        <tr><td>Receipt rejected once / three times</td><td class="n">9% / 3%</td><td>Failed delivery</td><td class="n">4%</td></tr>
+        <tr><td>Cancelled before / after payment</td><td class="n">3% / 2%</td><td>Wrong delivery code once / five times</td><td class="n">10% / 1.5%</td></tr>
+        <tr><td>Rider declines a route</td><td class="n">2%</td><td>Business claims on a delivered order</td><td class="n">4%</td></tr>
+        <tr><td>Rider changed mid-trip</td><td class="n">2%</td><td>Owner tries an illegal status change</td><td class="n">30%</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>System results</h2>
+    <p>Every check below has one acceptable answer, and the system gave it.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Check</th><th class="n">Result</th><th>Expected</th></tr></thead>
+      <tbody>
+        <tr><td>Orders that reached a final state (delivered, cancelled or returned)</td><td class="n">200 of 200</td><td class="ok">All</td></tr>
+        <tr><td>Status changes recorded as events</td><td class="n">2,166</td><td>—</td></tr>
+        <tr><td>Recorded changes not in the transitions table</td><td class="n">0</td><td class="ok">0</td></tr>
+        <tr><td>Recorded changes with no actor (who)</td><td class="n">0</td><td class="ok">0</td></tr>
+        <tr><td>Illegal status changes attempted by owners, and refused</td><td class="n">65 of 65</td><td class="ok">All refused</td></tr>
+        <tr><td>Privacy probes (each role reading what it must not) and rows leaked</td><td class="n">374 probes, 0 rows</td><td class="ok">0 rows</td></tr>
+        <tr><td>Pickup, delivery and handover codes generated; stored in plain text</td><td class="n">400; 0</td><td class="ok">0 in plain text</td></tr>
+        <tr><td>Delivery codes locked after five wrong tries, then settled by Operations</td><td class="n">3 of 3</td><td class="ok">All locked</td></tr>
+        <tr><td>Products whose stock count disagrees with the stock ledger or with open orders</td><td class="n">0 of 12</td><td class="ok">0</td></tr>
+        <tr><td>Confirmed dispatch requests where payments do not equal the amount due</td><td class="n">0 of 60</td><td class="ok">0</td></tr>
+        <tr><td>Claims above ₦100,000 capped at the limit</td><td class="n">3 of 3</td><td class="ok">All capped</td></tr>
+        <tr><td>Missing-item claims made after 24 hours, refused</td><td class="n">3 of 3</td><td class="ok">All refused</td></tr>
+        <tr><td>Riders still marked on a trip after every route finished</td><td class="n">0</td><td class="ok">0</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>A defect the simulation found, and its fix</h2>
+    <div class="callout">
+      <span class="tag bad">Found by the run</span>
+      <p>The first runs left 3 orders out for delivery. Each had been dispatched a second time after a business-caused failed pickup, so it carried two delivery codes: the cancelled first code and the new one. The rider's check chose the newest code by creation time, and when both were created at the same moment it sometimes chose the cancelled code, so the customer's correct code was refused.</p>
+      <p>The fix (migration <code>0010_active_delivery_code.sql</code>) makes the check always use the code that is still active. Without the fix the seeded run reproduces the fault exactly (3 orders stuck, the right code refused 3 times); with it, all 200 orders settle and the right code is never refused. The same fault appeared when the run was repeated on the live database inside a transaction that was rolled back, which confirms it was in the system, not in the simulation.</p>
+    </div>
+    <p>In normal use the two codes are created minutes or hours apart, so the fault would rarely show. It still matters for Chapter 4, because it shows the value of exercising unusual paths (a failed pickup followed by a second dispatch) at volume, which single-case testing missed.</p>
+  </section>
+
+  <section>
+    <h2>Speed of each step</h2>
+    <p>Time taken by each database function, in milliseconds, measured inside the database (95th percentile, so 19 of 20 calls were faster). Network time between a phone and the server is not included.</p>
+    <div class="panel">
+      <div class="bars" role="img" aria-label="95th percentile time per function, local run, in milliseconds">
+        <div class="bar-row"><span class="k">review_payment</span><span class="track"><i style="width:100%"></i></span><span class="v">25.4 ms</span></div>
+        <div class="bar-row"><span class="k">create_route</span><span class="track"><i style="width:24.3%"></i></span><span class="v">6.2 ms</span></div>
+        <div class="bar-row"><span class="k">confirm_pickup</span><span class="track"><i style="width:22.7%"></i></span><span class="v">5.8 ms</span></div>
+        <div class="bar-row"><span class="k">deliver_order</span><span class="track"><i style="width:20.4%"></i></span><span class="v">5.2 ms</span></div>
+        <div class="bar-row"><span class="k">send_order</span><span class="track"><i style="width:9%"></i></span><span class="v">2.3 ms</span></div>
+        <div class="bar-row"><span class="k">request_dispatch</span><span class="track"><i style="width:8.9%"></i></span><span class="v">2.3 ms</span></div>
+        <div class="bar-row"><span class="k">submit_payment</span><span class="track"><i style="width:8%"></i></span><span class="v">2.0 ms</span></div>
+        <div class="bar-row"><span class="k">override_delivery</span><span class="track"><i style="width:7.8%"></i></span><span class="v">2.0 ms</span></div>
+        <div class="bar-row"><span class="k">arrive_stop</span><span class="track"><i style="width:3.5%"></i></span><span class="v">0.9 ms</span></div>
+        <div class="bar-row"><span class="k">order_tracking</span><span class="track"><i style="width:3%"></i></span><span class="v">0.8 ms</span></div>
+      </div>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Where it ran</th><th class="n">200 orders, start to finish</th><th class="n">Slowest step (p95)</th><th class="n">Taking an order (p95)</th></tr></thead>
+      <tbody>
+        <tr><td>Local copy (PostgreSQL 16)</td><td class="n">6.2 s</td><td class="n">review_payment 25 ms</td><td class="n">send_order 2.3 ms</td></tr>
+        <tr><td>Live Supabase project (PostgreSQL 17), rolled back</td><td class="n">13.9 s</td><td class="n">review_payment 43 ms</td><td class="n">send_order 6.8 ms</td></tr>
+      </tbody></table></div>
+    <p>Confirming a receipt is the heaviest step because one confirmation releases every order in the request, creates a delivery code for each and notifies the customers, the business and Operations. Even on the live project it stays under 50 ms. At the study's scale (tens of orders a day) database speed is not a constraint; the human steps are.</p>
+  </section>
+
+  <section>
+    <h2>Modelled operations</h2>
+    <p><span class="tag mod">Modelled</span> These figures follow from the assumptions above. They confirm the dashboards count correctly, for example that an 8% traffic rate and a 4% quiet-late rate produce about 88% on time, and they show where workload falls. They are not performance claims.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Measure</th><th class="n">Value</th><th>Reading</th></tr></thead>
+      <tbody>
+        <tr><td>Delivered / cancelled / returned</td><td class="n">189 / 8 / 3</td><td>Every order settled</td></tr>
+        <tr><td>Delivered within the window</td><td class="n">166 of 189 (87.8%)</td><td>Matches the 12% late assumption; 17 of 23 late deliveries carried a traffic notice</td></tr>
+        <tr><td>Receipts submitted / rejected / requests closed after three rejections</td><td class="n">74 / 14 / 3</td><td>Rejection and retry paths worked</td></tr>
+        <tr><td>Delivery-fee revenue confirmed</td><td class="n">₦919,700</td><td>Fees plus waiting charges, net of credits used; includes re-dispatch fees</td></tr>
+        <tr><td>Waiting charges</td><td class="n">₦15,600 on 28 pickups</td><td>₦200 per started 5 minutes after the free 10</td></tr>
+        <tr><td>Credits returned for cancellations after payment</td><td class="n">₦12,000</td><td>Applied to the next request automatically</td></tr>
+        <tr><td>Claims opened / refunded (rider) / store-caused / unclear</td><td class="n">9 / 2 / 5 / 2</td><td>₦114,700 refunded</td></tr>
+        <tr><td>Notifications created / flagged for e-mail</td><td class="n">2,210 / 455</td><td>11 per order in the app; 2.3 e-mails per order</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>What it means for the design</h2>
+    <h3>1. The delivery code depends on customers having accounts</h3>
+    <p>39 of 189 deliveries (21%) went to customers with no account, who therefore never saw a delivery code. Operations had to phone each customer and record the delivery by override, 42 overrides in all with the 3 lockouts. The share comes from the assumption, but the mechanism is real: every customer without an account turns a self-checking handover into a manual phone call for Operations. Chapter 5 should weigh this against the decision that customers need an account, and the questionnaire can show how willing customers are to sign up.</p>
+    <h3>2. Combined routes need order density</h3>
+    <p>Only 7 of 198 routes combined orders (1.04 drops per route). The suggestion rule groups orders only when they share a pickup zone, a drop zone and the same window. With 200 orders spread over six zones, six windows and seven days, few orders coincide. The spec's efficiency gain from combining routes therefore depends on volume per zone and window. Chapter 5 can recommend widening the rule (neighbouring zones, overlapping windows) once real volumes are known.</p>
+    <h3>3. Receipt confirmation is the human bottleneck</h3>
+    <p>Every one of the 60 confirmed dispatch requests waited on the super admin. The database handles a confirmation in milliseconds; the 15-minute target depends on a person checking a bank app. At study scale this is manageable, but it is the step that limits throughput.</p>
+    <h3>4. The free e-mail plan caps volume</h3>
+    <p>At 2.3 e-mails per order, the free Resend plan's 100 e-mails a day supports about 44 orders a day. That is enough for the study, but the limit should be stated, along with the in-app notifications that carry the rest.</p>
+  </section>
+
+  <section>
+    <h2>Limitations</h2>
+    <ul>
+      <li>Outcome rates are assumptions, not observations, so no modelled figure describes real Lagos conditions.</li>
+      <li>Time is compressed: waiting and handover times are set directly, so time-dependent behaviour (the 2-hour payment limit, receipt waiting) was tested by moving the clock, not by waiting.</li>
+      <li>The run exercises the database, where all the rules live. It does not exercise the screens, the phone's location or camera, or network delays.</li>
+      <li>One run of 200 orders with one seed. Other seeds give different counts; the system results (zero leaks, zero mismatches, all illegal moves refused) are the ones that must not change, and they did not across the runs made.</li>
+      <li>All accounts, businesses and orders are sample data, in line with the research ethics in section 3.12.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Reproducing it</h2>
+    <p>Run <code>supabase/simulation/sim_200.sql</code> on a database built from the migrations (locally after <code>supabase/tests/local_stub.sql</code>, or on the live project). It runs as one block, always rolls back, and returns the full results as JSON in its final message. The results used here are in <code>docs/simulation/sim_200_results.json</code>.</p>
+  </section>
+
+  <footer>Ọ̀nà · last-mile delivery for Lagos businesses · simulation built on the same database the app uses.</footer>
+</div>
