@@ -271,6 +271,13 @@ input, select, textarea { font: inherit; font-weight: 450; color: var(--ink); ba
 textarea { height: auto; min-height: 90px; padding: 10px 13px; resize: vertical; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--indigo); box-shadow: 0 0 0 4px var(--indigo-50); }
 input.bad, select.bad { border-color: var(--bad); background: var(--bad-soft); }
+/* password box with show/hide button */
+.pw { position: relative; display: block; }
+.pw input { padding-right: 48px; }
+.pw-toggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 40px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 9px; background: transparent; color: var(--ink-3); cursor: pointer; }
+.pw-toggle:hover { color: var(--indigo); background: var(--indigo-50); }
+.pw-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--indigo-50); color: var(--indigo); }
+.pw input::-ms-reveal, .pw input::-ms-clear { display: none; }
 input[type='checkbox'], input[type='radio'] { width: 18px; height: 18px; accent-color: var(--indigo); }
 td select { height: 36px; min-width: 170px; }
 

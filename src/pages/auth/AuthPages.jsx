@@ -5,6 +5,7 @@ import { supabase, rpc } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { BrandMark } from '../../components/Layout'
 import Icon from '../../components/icons'
+import PasswordInput from '../../components/PasswordInput'
 import { markActive, takeSignOutReason } from '../../components/IdleSignOut'
 import { loginAddress } from '../../lib/login'
 
@@ -66,7 +67,7 @@ export function Login() {
       {notice && <div className="notice info">{notice}</div>}
       <form className="stack" onSubmit={submit}>
         <label className="field">E-mail or phone number<input type="text" inputMode="email" autoComplete="username" placeholder="you@example.com or 0803…" value={who} onChange={(e) => setWho(e.target.value)} required /></label>
-        <label className="field">Password<input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
+        <label className="field">Password<PasswordInput autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         {err && <div className="notice bad">{err}</div>}
         <button className="btn primary lg block" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
       </form>
@@ -115,7 +116,7 @@ export function Register() {
         <label className="field">Your name<input autoComplete="name" value={f.full_name} onChange={set('full_name')} required /></label>
         <label className="field">E-mail<input type="email" autoComplete="email" value={f.email} onChange={set('email')} required /></label>
         <label className="field">Phone number <span className="hint">So the rider can call you at the door</span><input type="tel" autoComplete="tel" placeholder="0803 555 0142" value={f.phone} onChange={set('phone')} required /></label>
-        <label className="field">Password <span className="hint">At least 8 characters</span><input type="password" autoComplete="new-password" value={f.password} onChange={set('password')} required /></label>
+        <label className="field">Password <span className="hint">At least 8 characters</span><PasswordInput autoComplete="new-password" value={f.password} onChange={set('password')} required /></label>
         {err && <div className="notice bad">{err}</div>}
         <button className="btn sun lg block" disabled={busy}>{busy ? 'Creating your account…' : 'Create my account'}</button>
       </form>
@@ -178,8 +179,8 @@ export function SetPassword({ forced }) {
       <div><h1>{forced ? 'Make it yours' : 'Set a new password'}</h1>
         {forced && <p className="muted" style={{ marginTop: 6 }}>You signed in with a temporary password. Choose your own to continue.</p>}</div>
       <form className="stack" onSubmit={submit}>
-        <label className="field">New password <span className="hint">At least 8 characters</span><input type="password" autoComplete="new-password" value={p1} onChange={(e) => setP1(e.target.value)} required /></label>
-        <label className="field">Type it again<input type="password" autoComplete="new-password" value={p2} onChange={(e) => setP2(e.target.value)} required /></label>
+        <label className="field">New password <span className="hint">At least 8 characters</span><PasswordInput autoComplete="new-password" value={p1} onChange={(e) => setP1(e.target.value)} required /></label>
+        <label className="field">Type it again<PasswordInput autoComplete="new-password" value={p2} onChange={(e) => setP2(e.target.value)} required /></label>
         <button className="btn primary lg block" disabled={busy}>Save password</button>
       </form>
       {forced && <button className="btn ghost" onClick={signOut}>Sign out</button>}
