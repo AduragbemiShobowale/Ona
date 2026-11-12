@@ -33,7 +33,7 @@ export default function Businesses() {
   return (
     <>
       <PageHead title="Businesses" sub="Each business gets one owner account. The owner sets their own password at first sign-in." />
-      <div className="grid-main">
+      <div className="grid-main wide-table">
         <Card title="All businesses" pad={false}>
           {list.loading || list.error ? <Loading error={list.error} /> : list.data.length === 0 ? <Empty>No businesses yet. Add the first one.</Empty> : (
             <div className="table-wrap"><table>
