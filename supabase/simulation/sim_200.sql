@@ -111,7 +111,8 @@ begin
       for k in 1..(1 + floor(random() * 2)::int) loop
         items := items || jsonb_build_array(jsonb_build_object('product_id', prods[(b - 1) * 4 + 1 + floor(random() * 4)::int], 'qty', 1 + floor(random() * 2)::int));
       end loop;
-      d := current_date + 2 + (w % 7);
+      -- anchored to a Sunday so the weekday pattern (and so every result) is the same whatever day it runs
+      d := current_date + 2 + ((7 - extract(dow from current_date + 2)::int) % 7) + (w % 7);
       select s.w_start into ws from slot_windows(d) s order by random() limit 1;
       zn := zones[1 + floor(random() * 6)::int];
       perform set_config('request.jwt.claims', json_build_object('sub', own[b], 'role','authenticated')::text, true);
