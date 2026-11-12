@@ -61,7 +61,7 @@ export default function Staff() {
   return (
     <>
       <PageHead title="Staff" sub="You create Operations leads. Leads then add dispatch staff and riders." />
-      <div className="grid-main">
+      <div className="grid-main wide-table">
         <Card title="Operations staff" pad={false}>
           {list.loading || list.error ? <Loading error={list.error} /> :
             <StaffTable rows={list.data} busy={a.busy} canManage={(p) => p.id !== user.id && p.ops_lead} onReset={a.reset} onToggle={a.setToggle} />}

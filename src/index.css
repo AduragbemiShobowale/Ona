@@ -66,6 +66,9 @@ code { font-family: var(--mono); font-size: .92em; background: var(--muted-soft)
 .grid-main { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; }
 .page > *, .grid > *, .grid-2 > *, .grid-3 > *, .grid-main > *, .stack > *, .stack-lg > * { min-width: 0; }
 @media (max-width: 900px) { .grid-main, .grid-3 { grid-template-columns: minmax(0, 1fr); } }
+/* list pages with an "add" form: the table needs the full width, so the form sits underneath */
+.grid-main.wide-table { grid-template-columns: minmax(0, 1fr); }
+.grid-main.wide-table > :last-child { max-width: 720px; }
 @media (max-width: 560px) { .grid-2 { grid-template-columns: minmax(0, 1fr); } }
 .spacer { flex: 1; }
 .nowrap { white-space: nowrap; flex-wrap: nowrap; }
