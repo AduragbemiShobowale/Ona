@@ -32,7 +32,7 @@ npm run build
 
 ## Live
 
-https://onairin.vercel.app (Vercel project `onairin`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
+[https://onairin.vercel.app](https://onairin.vercel.app/login) (Vercel project `onairin`). Every push to `main` deploys to production automatically; preview deployments stay behind Vercel sign-in.
 
 ## Backend
 
